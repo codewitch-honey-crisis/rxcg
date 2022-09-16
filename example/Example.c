@@ -393,11 +393,11 @@ static Example_capture_t Example_runner32(Example_int32* dfa, unsigned long long
 	Example_int32 state = 0;
 	Example_int32 acc = -1;
 	int done;
-	unsigned long long cursorPos = *position;
+	unsigned long long cursor_pos = *position;
 	ch = callback(&adv, callback_state);
 	while (ch != -1) {
 		result.length = 0;
-		result.position = cursorPos;
+		result.position = cursor_pos;
 		acc = -1;
 		done = 0;
 		while (!done) {
@@ -434,7 +434,7 @@ static Example_capture_t Example_runner32(Example_int32* dfa, unsigned long long
 							result.capture[result.length++] = ch;
 						}
 						ch = callback(&adv, callback_state);
-						++cursorPos;
+						++cursor_pos;
 						state = tto;
 						done = 0;
 						goto start_dfa;
@@ -447,7 +447,7 @@ static Example_capture_t Example_runner32(Example_int32* dfa, unsigned long long
 				}
 			}
 			ch = callback(&adv, callback_state);
-			++cursorPos;
+			++cursor_pos;
 			state = 0;
 		}
 	}
@@ -469,11 +469,11 @@ static Example_capture_t Example_runner16(Example_int16* dfa, unsigned long long
 	Example_int16 state = 0;
 	Example_int16 acc = -1;
 	int done;
-	unsigned long long cursorPos = *position;
+	unsigned long long cursor_pos = *position;
 	ch = callback(&adv, callback_state);
 	while (ch != -1) {
 		result.length = 0;
-		result.position = cursorPos;
+		result.position = cursor_pos;
 		acc = -1;
 		done = 0;
 		while (!done) {
@@ -510,7 +510,7 @@ static Example_capture_t Example_runner16(Example_int16* dfa, unsigned long long
 							result.capture[result.length++] = ch;
 						}
 						ch = callback(&adv, callback_state);
-						++cursorPos;
+						++cursor_pos;
 						state = tto;
 						done = 0;
 						goto start_dfa;
@@ -523,7 +523,7 @@ static Example_capture_t Example_runner16(Example_int16* dfa, unsigned long long
 				}
 			}
 			ch = callback(&adv, callback_state);
-			++cursorPos;
+			++cursor_pos;
 			state = 0;
 		}
 	}
@@ -545,11 +545,11 @@ static Example_capture_t Example_runner8(Example_int8* dfa, Example_int8* blockE
 	Example_int8 state = 0;
 	Example_int8 acc = -1;
 	int done;
-	unsigned long long cursorPos = *position;
+	unsigned long long cursor_pos = *position;
 	ch = callback(&adv, callback_state);
 	while (ch != -1) {
 		result.length = 0;
-		result.position = cursorPos;
+		result.position = cursor_pos;
 		acc = -1;
 		done = 0;
 		while (!done) {
@@ -586,7 +586,7 @@ static Example_capture_t Example_runner8(Example_int8* dfa, Example_int8* blockE
 							result.capture[result.length++] = ch;
 						}
 						ch = callback(&adv, callback_state);
-						++cursorPos;
+						++cursor_pos;
 						state = tto;
 						done = 0;
 						goto start_dfa;
@@ -633,7 +633,7 @@ static Example_capture_t Example_runner8(Example_int8* dfa, Example_int8* blockE
 											result.capture[result.length++] = ch;
 										}
 										ch = callback(&adv, callback_state);
-										++cursorPos;
+										++cursor_pos;
 										state = tto;
 										done = 0;
 										goto start_block_end;
@@ -650,7 +650,7 @@ static Example_capture_t Example_runner8(Example_int8* dfa, Example_int8* blockE
 								result.capture[result.length++] = ch;
 							}
 							ch = callback(&adv, callback_state);
-							++cursorPos;
+							++cursor_pos;
 						}
 						state = 0;
 					}
@@ -664,7 +664,7 @@ static Example_capture_t Example_runner8(Example_int8* dfa, Example_int8* blockE
 				}
 			}
 			ch = callback(&adv, callback_state);
-			++cursorPos;
+			++cursor_pos;
 			state = 0;
 		}
 	}

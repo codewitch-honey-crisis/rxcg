@@ -13,11 +13,11 @@
 	TYPE state = 0;
 	TYPE acc = -1;
 	int done;
-	unsigned long long cursorPos = *position;
+	unsigned long long cursor_pos = *position;
 	ch = callback(&adv, callback_state);
 	while (ch != -1) {
 		result.length = 0;
-		result.position = cursorPos;
+		result.position = cursor_pos;
 		acc = -1;
 		done = 0;
 		while (!done) {
@@ -54,7 +54,7 @@ start_dfa:
 							result.capture[result.length++] = ch;
 						}
 						ch = callback(&adv, callback_state);
-						++cursorPos;
+						++cursor_pos;
 						state = tto;
 						done = 0;
 						goto start_dfa;
@@ -101,7 +101,7 @@ start_block_end:
 											result.capture[result.length++] = ch;
 										}
 										ch = callback(&adv, callback_state);
-										++cursorPos;
+										++cursor_pos;
 										state = tto;
 										done = 0;
 										goto start_block_end;
@@ -118,7 +118,7 @@ start_block_end:
 								result.capture[result.length++] = ch;
 							}
 							ch = callback(&adv, callback_state);
-							++cursorPos;
+							++cursor_pos;
 						}
 						state = 0;
 					}
@@ -132,7 +132,7 @@ start_block_end:
 				}
 			}
 			ch = callback(&adv, callback_state);
-			++cursorPos;
+			++cursor_pos;
 			state = 0;
 		}
 	}

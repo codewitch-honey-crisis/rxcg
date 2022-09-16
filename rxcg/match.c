@@ -1,5 +1,5 @@
-﻿static MATCH_capture_t MATCH_runnerBIT_WIDTH(TYPE* dfa, unsigned long long* position, MATCH_callback callback, void* callback_state) {
-	MATCH_capture_t result;
+﻿static MATCH_match_t MATCH_runnerBIT_WIDTH(TYPE* dfa, unsigned long long* position, MATCH_callback callback, void* callback_state) {
+	MATCH_match_t result;
 	result.position = 0;
 	result.length = 0;
 	unsigned long long adv = 0;

@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     string_cb_state_t st;
     st.sz = test;
     while (1) {
-        Example_capture_t c = match_CommentBlock(&pos, string_callback, &st);
+        Example_match_t c = match_CommentBlock(&pos, string_callback, &st);
         if (0 == c.length) {
             return 0;
         }

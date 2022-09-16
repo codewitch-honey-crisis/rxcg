@@ -19,14 +19,14 @@
 	#define MATCH_uint32 unsigned int
 #endif
 // Represents the capture information
-typedef struct MATCH_capture {
+typedef struct MATCH_match {
 	// the captured text, as unicode codepoints
 	TYPE capture[MAX_SIZE];
 	// the position in the text, as codepoints
 	unsigned long long position;
 	// the length of the capture buffer, in elements
 	size_t length;
-} MATCH_capture_t;
+} MATCH_match_t;
 // a callback to read the input
 typedef MATCH_int32(*MATCH_callback)(unsigned long long* out_advance,void* state);
 #if 0

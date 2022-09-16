@@ -343,7 +343,7 @@ namespace rxcg
 			{
 				var rule = rules[i];
 				var width = widths[rule.Id];
-				sourceOutput.Write("{0}_capture_t match_{1}(unsigned long long* position,{0}_callback callback, void* callback_state) ", name, rule.Symbol);
+				sourceOutput.Write("{0}_match_t match_{1}(unsigned long long* position,{0}_callback callback, void* callback_state) ", name, rule.Symbol);
 				sourceOutput.WriteLine("{");
 				if((width == 1 && hasBE1) || (width == 2 && hasBE2) || (width==4 && hasBE4))
 				{
@@ -381,7 +381,7 @@ namespace rxcg
 					
 				}
 				headerOutput.WriteLine();
-				headerOutput.WriteLine("{0}_capture_t match_{1}(unsigned long long* position,{0}_callback callback, void* callback_state);", name,rule.Symbol);
+				headerOutput.WriteLine("{0}_match_t match_{1}(unsigned long long* position,{0}_callback callback, void* callback_state);", name,rule.Symbol);
 			}
 			headerOutput.WriteLine("#ifdef __cplusplus");
 			headerOutput.WriteLine("}");

@@ -1,11 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32802.440
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rxcg", "rxcg\rxcg.csproj", "{4D0E407C-6BE4-4135-B47D-088F86B4F570}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "example\example.vcxproj", "{6176B9A5-5D5F-4296-A236-FE5B30F3D2A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4D0E407C-6BE4-4135-B47D-088F86B4F570} = {4D0E407C-6BE4-4135-B47D-088F86B4F570}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7E625BB9-BA3E-4FA6-B0A5-5567F3005565}"
 	ProjectSection(SolutionItems) = preProject

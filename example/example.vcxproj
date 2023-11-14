@@ -94,7 +94,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>"$(SolutionDir)$(SolutionName).exe" "$(ProjectDir)Example.rl"</Command>
+      <Command>"$(SolutionDir)$(SolutionName).exe" "$(ProjectDir)Example.rl" /ifstale</Command>
       <Message>Generating matcher code</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>

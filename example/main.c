@@ -80,17 +80,17 @@ int32_t file_callback(unsigned long long* out_advance, void* state) {
 }
 
 int main(int argc, char** argv) {
-    char* test = "a1234 foobar /*5678 abc123 */ -";
+    char* test = "a1234 foobar /*5678 abc123 */ - while damn";
     unsigned long long pos = 0;
     string_cb_state_t st;
     st.sz = test;
     while (1) {
-        Example_match_t c = match_CommentBlock(&pos, string_callback, &st);
+        Example_match_t c = match_Keyword(&pos, string_callback, &st);
         if (0 == c.length) {
             return 0;
         }
         for(size_t i = 0;i<c.length;++i) {
-            printf("%c",(char)c.capture[i]);
+            putc((char)c.capture[i],stdout);
         }
         printf("\n");
     }

@@ -1,10 +1,15 @@
 ﻿using System;
+using System.CodeDom.Compiler;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
 using F;
+
+using LC;
+
 namespace rxcg
 {
 	class Program
@@ -29,61 +34,97 @@ namespace rxcg
 		/// The application description
 		/// </summary>
 		public static readonly string Description = _GetDescription();
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
+			return Run(args, Console.In, Console.Out, Console.Error);
+		}
+		public static int Run(string[] args,TextReader stdin, TextWriter stdout, TextWriter stderr)
+		{
+			int result = 0;
 			string path = null;
 			string size = "256";
+			bool ifstale = false;
 			string outH = null;
 			string outC = null;
-			if (args.Length < 1)
+			try
 			{
-				_PrintUsage();
-				Console.Error.WriteLine("Too few arguments.");
-				return;
-			} else if (args.Length > 3)
-			{
-				_PrintUsage();
-				Console.Error.WriteLine("Too many arguments.");
-				return;
-			}
-			if (args.Length > 1) {
-				if (args[1].ToLower()!="/size") {
-					_PrintUsage();
-					Console.Error.WriteLine("Invalid argument.");
-					return;
-				} else if(args.Length<3)
+				if (0 == args.Length)
 				{
-					_PrintUsage();
-					Console.Error.WriteLine("Expecting <capture_size> argument");
-					return;
+					_PrintUsage(stderr);
+					result = -1;
 				}
-				size = args[2];
-			}
-			path = args[0];
-			string inputName = Path.GetFileNameWithoutExtension(path);
-			outH = inputName + ".h";
-			outC = inputName + ".c";
-			/*if(!_IsStale(args[0],outH) && !_IsStale(args[0],outC))
-			{
-				Console.Error.WriteLine("Skipping generation because files haven't changed.");
-				return;
-			}*/
-			if(File.Exists(outH))
-			{
-				File.Delete(outH);
-			}
-			if (File.Exists(outC))
-			{
-				File.Delete(outC);
-			}
-			using (var sh = new StreamWriter(outH))
-			{
-				using (var sc = new StreamWriter(outC))
+				else if (args[0].StartsWith("/"))
 				{
-					Console.Error.WriteLine("Generating " + outH + " and " + outC + ".");
-					Generator.Generate(path, size, sh, sc);
+					throw new ArgumentException("Missing input file.");
+				}
+				else
+				{
+					// process the command line args
+					path = args[0];
+					for (var i = 1; i < args.Length; ++i)
+					{
+						switch (args[i].ToLowerInvariant())
+						{
+							case "/size":
+								if (args.Length - 1 == i) // check if we're at the end
+									throw new ArgumentException(string.Format("The parameter \"{0}\" is missing an argument", args[i].Substring(1)));
+								++i; // advance 
+								size = args[i];
+								break;
+							case "/ifstale":
+								ifstale = true;
+								break;
+							default:
+								throw new ArgumentException(string.Format("Unknown switch {0}", args[i]));
+						}
+					}
+					// now build it
+					string inputName = Path.GetFileNameWithoutExtension(path);
+					outH = inputName + ".h";
+					outC = inputName + ".c";
+					var stale = true;
+					if (ifstale && null != path)
+					{
+						stale = _IsStale(path, outH) || _IsStale(path, outC);
+					}
+					if (!stale)
+					{
+						stderr.WriteLine("{0} skipped building code because it was not stale.", Name);
+					}
+					else
+					{
+						if (File.Exists(outH))
+						{
+							File.Delete(outH);
+						}
+						if (File.Exists(outC))
+						{
+							File.Delete(outC);
+						}
+						using (var sh = new StreamWriter(outH))
+						{
+							using (var sc = new StreamWriter(outC))
+							{
+								stderr.WriteLine("Generating " + outH + " and " + outC + ".");
+								Generator.Generate(path, size, sh, sc);
+							}
+						}
+
+					}
 				}
 			}
+			// we don't like to catch in debug mode
+#if !DEBUG
+			catch (Exception ex)
+			{
+				result = _ReportError(ex, stderr);
+			}
+#endif
+			finally
+			{
+				
+			}
+			return result;
 			
 		}
 		static bool _IsStale(string inputfile, string outputfile)
@@ -141,10 +182,9 @@ namespace rxcg
 			}
 			return result;
 		}
-		static void _PrintUsage()
+		static void _PrintUsage(TextWriter w)
 		{
-			TextWriter w = Console.Error;
-			w.WriteLine("Usage: {0} <input> [/size <capture_size>]",Path.GetFileName(CodeBase));
+			w.WriteLine("Usage: {0} <input> [/size <capture_size>] [/ifstale]",Path.GetFileName(CodeBase));
 			if (!string.IsNullOrEmpty(Description))
 			{
 				w.WriteLine();
@@ -154,6 +194,8 @@ namespace rxcg
 			w.WriteLine("<input>        The input file to use");
 			w.WriteLine("<capture_size> The size of the capture");
 			w.WriteLine("               buffer. Default is 256");
+			w.WriteLine("<ifstale>      Only generate if source");
+			w.WriteLine("               is newer than target");
 			w.WriteLine();
 		}
 	}

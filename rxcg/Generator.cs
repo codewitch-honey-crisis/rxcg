@@ -185,11 +185,12 @@ namespace rxcg
 			}
 			return s;
 		}
-		static void GenerateMatchEpilogueC(string name, bool prefix, TextWriter writer)
+		static void GenerateMatchEpilogueC(string name, bool stdint, bool prefix, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match_epilogue.c");
 			TextReader tr = new StreamReader(stm);
 			var s = tr.ReadToEnd();
+			s=ReplaceTypes(s, stdint);
 			s = s.Replace("MATCH", name);
 			if (prefix)
 			{
@@ -199,6 +200,7 @@ namespace rxcg
 			{
 				s = s.Replace("PREFIX", "");
 			}
+
 			writer.Write(s);
 		}
 		static void GenerateMatchH(string name, int maxWidth, bool stdint,bool prefix, string size, TextWriter writer)
@@ -459,7 +461,7 @@ namespace rxcg
 				}
 				sourceOutput.WriteLine("}");
 			}
-			GenerateMatchEpilogueC(name, prefix, sourceOutput);
+			GenerateMatchEpilogueC(name, stdint, prefix, sourceOutput);
 			GenerateMatchH(name, maxWidth, stdint, prefix, size, headerOutput);
 			headerOutput.WriteLine("#ifdef __cplusplus");
 			headerOutput.WriteLine("extern \"C\" {");

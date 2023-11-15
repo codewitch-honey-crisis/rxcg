@@ -106,75 +106,75 @@ match_t match_unixtime_value(unsigned long long* position,read_callback callback
 	return worldtime_json_runner8(unixtime_value_dfa, position, callback, callback_state);
 }
 #if 0
-worldtime_json_int32 string_read_callback(unsigned long long* out_advance, void* state) {
+int32_t string_read_callback(unsigned long long* out_advance, void* state) {
 	string_cb_state_t* ps = (string_cb_state_t*)state;
-	worldtime_json_int32 cp = 0;
+	int32_t cp = 0;
 	if (!*ps->sz) {
 		*out_advance = 0;
 		return -1;
 	}
-	worldtime_json_uint8 data = (worldtime_json_uint8)*ps->sz;
+	uint8_t data = (uint8_t)*ps->sz;
 	if ((data & 128) == 0) {
-		cp = ((worldtime_json_uint32)*ps->sz & ~128);
+		cp = ((uint32_t)*ps->sz & ~128);
 		*out_advance = 1;
 	}
 
 	if ((data & 224) == 192) {
-		cp = ((worldtime_json_uint32)ps->sz[0] & ~224) << 6 |
-			((worldtime_json_uint32)ps->sz[1] & ~192);
+		cp = ((uint32_t)ps->sz[0] & ~224) << 6 |
+			((uint32_t)ps->sz[1] & ~192);
 		*out_advance = 2;
 	}
 
 	if ((data & 240) == 224) {
-		cp = ((worldtime_json_uint32)ps->sz[0] & ~240) << 12 |
-			((worldtime_json_uint32)ps->sz[1] & ~192) << 6 |
-			((worldtime_json_uint32)ps->sz[2] & ~192);
+		cp = ((uint32_t)ps->sz[0] & ~240) << 12 |
+			((uint32_t)ps->sz[1] & ~192) << 6 |
+			((uint32_t)ps->sz[2] & ~192);
 		*out_advance = 3;
 	}
 
 	if ((data & 248) == 240) {
-		cp = ((worldtime_json_uint32)ps->sz[0] & ~248) << 18 |
-			((worldtime_json_uint32)ps->sz[1] & ~192) << 12 |
-			((worldtime_json_uint32)ps->sz[2] & ~192) << 6 |
-			((worldtime_json_uint32)ps->sz[3] & ~192);
+		cp = ((uint32_t)ps->sz[0] & ~248) << 18 |
+			((uint32_t)ps->sz[1] & ~192) << 12 |
+			((uint32_t)ps->sz[2] & ~192) << 6 |
+			((uint32_t)ps->sz[3] & ~192);
 		*out_advance = 4;
 	}
 	ps->sz += *out_advance;
 
 	return cp;
 }
-worldtime_json_int32 file_read_callback(unsigned long long* out_advance, void* state) {
+int32_t file_read_callback(unsigned long long* out_advance, void* state) {
 	FILE* h = (FILE*)state;
-	worldtime_json_int32 cp = 0;
+	int32_t cp = 0;
 	int i = fgetc(h);
 	if (i == -1) {
 		*out_advance = 0;
 		return -1;
 	}
-	worldtime_json_uint8 data = (worldtime_json_uint8)i;
+	uint8_t data = (uint8_t)i;
 	if ((data & 128) == 0) {
-		cp = ((worldtime_json_uint32)i & ~128);
+		cp = ((uint32_t)i & ~128);
 		*out_advance = 1;
 	}
 
 	if ((data & 224) == 192) {
-		cp = ((worldtime_json_uint32)i & ~224) << 6 |
-			((worldtime_json_uint32)fgetc(h) & ~192);
+		cp = ((uint32_t)i & ~224) << 6 |
+			((uint32_t)fgetc(h) & ~192);
 		*out_advance = 2;
 	}
 
 	if ((data & 240) == 224) {
-		cp = ((worldtime_json_uint32)i & ~240) << 12 |
-			((worldtime_json_uint32)fgetc(h) & ~192) << 6 |
-			((worldtime_json_uint32)fgetc(h) & ~192);
+		cp = ((uint32_t)i & ~240) << 12 |
+			((uint32_t)fgetc(h) & ~192) << 6 |
+			((uint32_t)fgetc(h) & ~192);
 		*out_advance = 3;
 	}
 
 	if ((data & 248) == 240) {
-		cp = ((worldtime_json_uint32)i & ~248) << 18 |
-			((worldtime_json_uint32)fgetc(h) & ~192) << 12 |
-			((worldtime_json_uint32)fgetc(h) & ~192) << 6 |
-			((worldtime_json_uint32)fgetc(h) & ~192);
+		cp = ((uint32_t)i & ~248) << 18 |
+			((uint32_t)fgetc(h) & ~192) << 12 |
+			((uint32_t)fgetc(h) & ~192) << 6 |
+			((uint32_t)fgetc(h) & ~192);
 		*out_advance = 4;
 	}
 	return cp;

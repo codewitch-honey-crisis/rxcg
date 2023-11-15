@@ -6,26 +6,26 @@ MATCH_int32 PREFIXstring_read_callback(unsigned long long* out_advance, void* st
 		*out_advance = 0;
 		return -1;
 	}
-	MATCH_uint8 byte = (MATCH_uint8)*ps->sz;
-	if ((byte & 128) == 0) {
+	MATCH_uint8 data = (MATCH_uint8)*ps->sz;
+	if ((data & 128) == 0) {
 		cp = ((MATCH_uint32)*ps->sz & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((MATCH_uint32)ps->sz[0] & ~224) << 6 |
 			((MATCH_uint32)ps->sz[1] & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((MATCH_uint32)ps->sz[0] & ~240) << 12 |
 			((MATCH_uint32)ps->sz[1] & ~192) << 6 |
 			((MATCH_uint32)ps->sz[2] & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((MATCH_uint32)ps->sz[0] & ~248) << 18 |
 			((MATCH_uint32)ps->sz[1] & ~192) << 12 |
 			((MATCH_uint32)ps->sz[2] & ~192) << 6 |
@@ -44,26 +44,26 @@ MATCH_int32 PREFIXfile_read_callback(unsigned long long* out_advance, void* stat
 		*out_advance = 0;
 		return -1;
 	}
-	MATCH_uint8 byte = (MATCH_uint8)i;
-	if ((byte & 128) == 0) {
+	MATCH_uint8 data = (MATCH_uint8)i;
+	if ((data & 128) == 0) {
 		cp = ((MATCH_uint32)i & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((MATCH_uint32)i & ~224) << 6 |
 			((MATCH_uint32)fgetc(h) & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((MATCH_uint32)i & ~240) << 12 |
 			((MATCH_uint32)fgetc(h) & ~192) << 6 |
 			((MATCH_uint32)fgetc(h) & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((MATCH_uint32)i & ~248) << 18 |
 			((MATCH_uint32)fgetc(h) & ~192) << 12 |
 			((MATCH_uint32)fgetc(h) & ~192) << 6 |

@@ -121,16 +121,17 @@ namespace rxcg
 			}
 			return width;
 		}
-		static void GenerateMatchC(string name, int width,bool prefix,string size, TextWriter writer)
+		static void GenerateMatchC(string name, int width,bool stdint, bool prefix,string size, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match.c");
 			TextReader tr = new StreamReader(stm);
 			var s = tr.ReadToEnd();
 			s = s.Replace("BIT_WIDTH", (width * 8).ToString());
-			s = s.Replace("UTYPE", width == 4 ? "MATCH_uint32" : width == 2 ? "MATCH_uint16" : "MATCH_uint8");
+			s = s.Replace("UTYPE", width == 4 ? "UINT32" : width == 2 ? "UINT16" : "UINT8");
 			s = s.Replace("TYPE2", width == 4 ? "dword" : width == 2 ? "word" : "byte");
-			s = s.Replace("TYPE", width == 4 ? "MATCH_int32" : width == 1 ? "MATCH_int8" : "MATCH_int16");
+			s = s.Replace("TYPE", width == 4 ? "INT32" : width == 1 ? "INT8" : "INT16");
 			s = s.Replace("MAX_SIZE", size);
+			s = ReplaceTypes(s, stdint);
 			s = s.Replace("MATCH", name);
 			if(prefix)
 			{
@@ -142,16 +143,17 @@ namespace rxcg
 
 			writer.Write(s);
 		}
-		static void GenerateMatchBEC(string name, int width, bool prefix,string size, TextWriter writer)
+		static void GenerateMatchBEC(string name, int width,bool stdint, bool prefix,string size, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match_be.c");
 			TextReader tr = new StreamReader(stm);
 			var s = tr.ReadToEnd();
 			s = s.Replace("BIT_WIDTH", (width * 8).ToString());
-			s = s.Replace("UTYPE", width == 4 ? "MATCH_uint32" : width == 2 ? "MATCH_uint16" : "MATCH_uint8");
+			s = s.Replace("UTYPE", width == 4 ? "UINT32" : width == 2 ? "UINT16" : "UINT8");
 			s = s.Replace("TYPE2", width == 4 ? "dword" : width == 2 ? "word" : "byte");
-			s = s.Replace("TYPE", width == 4 ? "MATCH_int32" : width == 1 ? "MATCH_int8" : "MATCH_int16");
+			s = s.Replace("TYPE", width == 4 ? "INT32" : width == 1 ? "INT8" : "INT16");
 			s = s.Replace("MAX_SIZE", size);
+			s = ReplaceTypes(s, stdint);
 			s = s.Replace("MATCH", name);
 			if (prefix)
 			{
@@ -162,6 +164,26 @@ namespace rxcg
 				s = s.Replace("PREFIX", "");
 			}
 			writer.Write(s);
+		}
+		static string ReplaceTypes(string s, bool stdint)
+		{
+			if (!stdint) {
+				s = s.Replace("UINT8", "MATCH_uint8");
+				s = s.Replace("INT8", "MATCH_int8");
+				s = s.Replace("UINT16", "MATCH_uint16");
+				s = s.Replace("INT16", "MATCH_int16");
+				s = s.Replace("UINT32", "MATCH_uint32");
+				s = s.Replace("INT32", "MATCH_int32");
+			} else
+			{
+				s = s.Replace("UINT8", "uint8_t");
+				s = s.Replace("INT8", "int8_t");
+				s = s.Replace("UINT16", "uint16_t");
+				s = s.Replace("INT16", "int16_t");
+				s = s.Replace("UINT32", "uint32_t");
+				s = s.Replace("INT32", "int32_t");
+			}
+			return s;
 		}
 		static void GenerateMatchEpilogueC(string name, bool prefix, TextWriter writer)
 		{
@@ -179,17 +201,34 @@ namespace rxcg
 			}
 			writer.Write(s);
 		}
-		static void GenerateMatchH(string name, int maxWidth, bool prefix, string size, TextWriter writer)
+		static void GenerateMatchH(string name, int maxWidth, bool stdint,bool prefix, string size, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match.h");
 			TextReader tr = new StreamReader(stm);
 			var s = tr.ReadToEnd();
 			s = s.Replace("TIMESTAMP", DateTime.Now.ToString());
 			s = s.Replace("FILENAME", name + ".h");
-			s = s.Replace("UTYPE", maxWidth == 4 ? "MATCH_uint32" : maxWidth == 2 ? "MATCH_uint16" : "MATCH_uint8");
+			string repl;
+			if(!stdint)
+			{
+				repl = "#ifndef INT8" + Environment.NewLine +
+						"\t#define INT8 char" + Environment.NewLine +
+						"\t#define UINT8 unsigned char" + Environment.NewLine +
+						"\t#define INT16 short" + Environment.NewLine +
+						"\t#define UINT16 unsigned short" + Environment.NewLine +
+						"\t#define INT32 int" + Environment.NewLine +
+						"\t#define UINT32 unsigned int" + Environment.NewLine +
+						"#endif" + Environment.NewLine;
+			} else
+			{
+				repl = "#include <stdint.h>";
+			}
+			s = s.Replace("INTDEFS", repl);
+			s = s.Replace("UTYPE", maxWidth == 4 ? "UINT32" : maxWidth == 2 ? "UINT16" : "UINT8");
 			s = s.Replace("TYPE2", maxWidth == 4 ? "dword" : maxWidth == 2 ? "word" : "byte");
-			s = s.Replace("TYPE", maxWidth == 4 ? "MATCH_int32" : maxWidth == 1 ? "MATCH_int8" : "MATCH_int16");
+			s = s.Replace("TYPE", maxWidth == 4 ? "INT32" : maxWidth == 1 ? "INT8" : "INT16");
 			s = s.Replace("MAX_SIZE", size);
+			s = ReplaceTypes(s, stdint);
 			s = s.Replace("MATCH", name);
 			if(prefix) {
 				s = s.Replace("PREFIX", name + "_");
@@ -201,10 +240,10 @@ namespace rxcg
 
 			writer.Write(s);
 		}
-		static void GenerateArray(string name, string arrayName, int width, int[] table, TextWriter writer)
+		static void GenerateArray(string name, string arrayName, string type, int[] table, TextWriter writer)
 		{
 			writer.Write("static ");
-			writer.Write(width==4? "{0}_int32 " : width ==1  ? "{0}_int8 ":"{0}_int16 ",name);
+			writer.Write(type+" ");
 			writer.Write(arrayName);
 			writer.WriteLine("[]");
 			writer.WriteLine("#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)");
@@ -228,7 +267,35 @@ namespace rxcg
 			writer.WriteLine("};");
 
 		}
-		public static void Generate(string inputFile,string size, bool prefix, TextWriter headerOutput,TextWriter sourceOutput)
+		static string WidthToSignedType(string name, int width,bool stdint) {
+			if (stdint)
+			{
+				switch (width)
+				{
+					case 1:
+						return "int8_t";
+					case 2:
+						return "int16_t";
+					case 4:
+						return "int32_t";
+
+				}
+			} else
+			{
+				switch (width)
+				{
+					case 1:
+						return name+"_int8";
+					case 2:
+						return name + "_int16";
+					case 4:
+						return name + "_int32";
+
+				}
+			}
+			return null;
+		}
+		public static void Generate(string inputFile,string size, bool stdint, bool prefix, TextWriter headerOutput,TextWriter sourceOutput)
 		{
 			var name = Path.GetFileNameWithoutExtension(inputFile);
 			IList<LexRule> rules;
@@ -283,10 +350,11 @@ namespace rxcg
 				var rule = rules[i];
 				var dfa = dfas[rule.Id];
 				var be = blockEndDfas[rule.Id];
-				GenerateArray(name, rule.Symbol+"_dfa",widths[rule.Id], dfa, sourceOutput);
+				
+				GenerateArray(name, rule.Symbol+"_dfa",WidthToSignedType(name, widths[rule.Id],stdint), dfa, sourceOutput);
 				if (be != null)
 				{
-					GenerateArray(name, rule.Symbol+"_end_dfa", widths[rule.Id], be, sourceOutput);
+					GenerateArray(name, rule.Symbol+"_end_dfa", WidthToSignedType(name, widths[rule.Id], stdint), be, sourceOutput);
 				}
 			}
 			int maxWidth = 0;
@@ -315,11 +383,11 @@ namespace rxcg
 							}
 							if (hasBE)
 							{
-								GenerateMatchBEC(name, w, prefix, size, sourceOutput);
+								GenerateMatchBEC(name, w, stdint, prefix, size, sourceOutput);
 							}
 							else
 							{
-								GenerateMatchC(name, w, prefix, size, sourceOutput);
+								GenerateMatchC(name, w, stdint, prefix, size, sourceOutput);
 							}
 							gen1 = true;
 						}
@@ -339,11 +407,11 @@ namespace rxcg
 							}
 							if (hasBE)
 							{
-								GenerateMatchBEC(name, w, prefix, size, sourceOutput);
+								GenerateMatchBEC(name, w, stdint, prefix, size, sourceOutput);
 							}
 							else
 							{
-								GenerateMatchC(name, w, prefix, size, sourceOutput);
+								GenerateMatchC(name, w, stdint, prefix, size, sourceOutput);
 							}
 							gen2 = true;
 						}
@@ -363,11 +431,11 @@ namespace rxcg
 							}
 							if (hasBE)
 							{
-								GenerateMatchBEC(name, w, prefix, size, sourceOutput);
+								GenerateMatchBEC(name, w, stdint, prefix, size, sourceOutput);
 							}
 							else
 							{
-								GenerateMatchC(name, w, prefix, size, sourceOutput);
+								GenerateMatchC(name, w, stdint, prefix, size, sourceOutput);
 							}
 							gen4 = true;
 						}
@@ -392,7 +460,7 @@ namespace rxcg
 				sourceOutput.WriteLine("}");
 			}
 			GenerateMatchEpilogueC(name, prefix, sourceOutput);
-			GenerateMatchH(name, maxWidth, prefix, size, headerOutput);
+			GenerateMatchH(name, maxWidth, stdint, prefix, size, headerOutput);
 			headerOutput.WriteLine("#ifdef __cplusplus");
 			headerOutput.WriteLine("extern \"C\" {");
 			headerOutput.WriteLine("#endif");

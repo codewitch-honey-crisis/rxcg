@@ -112,7 +112,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>"$(SolutionDir)$(SolutionName).exe" "$(ProjectDir)worldtime_json.rl" /ifstale</Command>
+      <Command>"$(SolutionDir)$(SolutionName).exe" "$(ProjectDir)worldtime_json.rl" /ifstale /stdint</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generating worldtime matchers</Message>

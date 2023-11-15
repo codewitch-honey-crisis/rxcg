@@ -1,6 +1,6 @@
 // worldtime_json.c
 #include "worldtime_json.h"
-static worldtime_json_int8 unixtime_all_dfa[]
+static int8_t unixtime_all_dfa[]
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
 PROGMEM
 #endif
@@ -15,7 +15,7 @@ PROGMEM
 	58, 58, -1, 2, 72, 2, 9, 9, 32, 32, 
 	84, 1, 48, 57, 0, 1, 84, 1, 48, 57
 };
-static worldtime_json_int8 unixtime_value_dfa[]
+static int8_t unixtime_value_dfa[]
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
 PROGMEM
 #endif
@@ -23,20 +23,20 @@ PROGMEM
 	-1, 1, 6, 1, 48, 57, 1, 1, 6, 1, 
 	48, 57
 };
-static match_t worldtime_json_runner8(worldtime_json_int8* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
+static match_t worldtime_json_runner8(int8_t* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
 	match_t result;
 	result.position = 0;
 	result.length = 0;
 	unsigned long long adv = 0;
 	int tlen;
-	worldtime_json_int8 tto;
-	worldtime_json_int8 prlen;
-	worldtime_json_int8 pmin;
-	worldtime_json_int8 pmax;
-	worldtime_json_int32 i, j;
-	worldtime_json_int32 ch;
-	worldtime_json_int8 state = 0;
-	worldtime_json_int8 acc = -1;
+	int8_t tto;
+	int8_t prlen;
+	int8_t pmin;
+	int8_t pmax;
+	int i, j;
+	int32_t ch;
+	int8_t state = 0;
+	int8_t acc = -1;
 	int done;
 	unsigned long long cursor_pos = *position;
 	ch = callback(&adv, callback_state);
@@ -49,24 +49,24 @@ static match_t worldtime_json_runner8(worldtime_json_int8* dfa, unsigned long lo
 start_dfa:
 			done = 1;
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
-			acc = (worldtime_json_int8)pgm_read_byte((worldtime_json_uint8*)(dfa + (state++)));
-			tlen = (worldtime_json_int8)pgm_read_byte((worldtime_json_uint8*)(dfa + (state++)));
+			acc = (int8_t)pgm_read_byte((uint8_t*)(dfa + (state++)));
+			tlen = (int8_t)pgm_read_byte((uint8_t*)(dfa + (state++)));
 #else
 			acc = dfa[state++];
 			tlen = dfa[state++];
 #endif
 			for (i = 0; i < tlen; ++i) {
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
-				tto = (worldtime_json_int8)pgm_read_byte((worldtime_json_uint8*)(dfa + (state++)));
-				prlen = (worldtime_json_int8)pgm_read_byte((worldtime_json_uint8*)(dfa + (state++)));
+				tto = (int8_t)pgm_read_byte((uint8_t*)(dfa + (state++)));
+				prlen = (int8_t)pgm_read_byte((uint8_t*)(dfa + (state++)));
 #else
 				tto = dfa[state++];
 				prlen = dfa[state++];
 #endif
 				for (j = 0; j < prlen; ++j) {
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
-					pmin = (worldtime_json_int8)pgm_read_byte((worldtime_json_uint8*)(dfa + (state++)));
-					pmax = (worldtime_json_int8)pgm_read_byte((worldtime_json_uint8*)(dfa + (state++)));
+					pmin = (int8_t)pgm_read_byte((uint8_t*)(dfa + (state++)));
+					pmax = (int8_t)pgm_read_byte((uint8_t*)(dfa + (state++)));
 #else
 					pmin = dfa[state++];
 					pmax = dfa[state++];
@@ -113,26 +113,26 @@ worldtime_json_int32 string_read_callback(unsigned long long* out_advance, void*
 		*out_advance = 0;
 		return -1;
 	}
-	worldtime_json_uint8 byte = (worldtime_json_uint8)*ps->sz;
-	if ((byte & 128) == 0) {
+	worldtime_json_uint8 data = (worldtime_json_uint8)*ps->sz;
+	if ((data & 128) == 0) {
 		cp = ((worldtime_json_uint32)*ps->sz & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((worldtime_json_uint32)ps->sz[0] & ~224) << 6 |
 			((worldtime_json_uint32)ps->sz[1] & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((worldtime_json_uint32)ps->sz[0] & ~240) << 12 |
 			((worldtime_json_uint32)ps->sz[1] & ~192) << 6 |
 			((worldtime_json_uint32)ps->sz[2] & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((worldtime_json_uint32)ps->sz[0] & ~248) << 18 |
 			((worldtime_json_uint32)ps->sz[1] & ~192) << 12 |
 			((worldtime_json_uint32)ps->sz[2] & ~192) << 6 |
@@ -151,26 +151,26 @@ worldtime_json_int32 file_read_callback(unsigned long long* out_advance, void* s
 		*out_advance = 0;
 		return -1;
 	}
-	worldtime_json_uint8 byte = (worldtime_json_uint8)i;
-	if ((byte & 128) == 0) {
+	worldtime_json_uint8 data = (worldtime_json_uint8)i;
+	if ((data & 128) == 0) {
 		cp = ((worldtime_json_uint32)i & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((worldtime_json_uint32)i & ~224) << 6 |
 			((worldtime_json_uint32)fgetc(h) & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((worldtime_json_uint32)i & ~240) << 12 |
 			((worldtime_json_uint32)fgetc(h) & ~192) << 6 |
 			((worldtime_json_uint32)fgetc(h) & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((worldtime_json_uint32)i & ~248) << 18 |
 			((worldtime_json_uint32)fgetc(h) & ~192) << 12 |
 			((worldtime_json_uint32)fgetc(h) & ~192) << 6 |

@@ -6,33 +6,33 @@ typedef struct string_cb_state {
 	char* sz;
 } string_cb_state_t;
 
-Example_int32 string_read_callback(unsigned long long* out_advance, void* state) {
+int32_t string_read_callback(unsigned long long* out_advance, void* state) {
 	string_cb_state_t* ps = (string_cb_state_t*)state;
-	Example_int32 cp = 0;
+	int32_t cp = 0;
 	if (!*ps->sz) {
 		*out_advance = 0;
 		return -1;
 	}
-	Example_uint8 byte = (Example_uint8)*ps->sz;
-	if ((byte & 128) == 0) {
+	uint8_t data = (Example_uint8)*ps->sz;
+	if ((data & 128) == 0) {
 		cp = ((Example_uint32)*ps->sz & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((Example_uint32)ps->sz[0] & ~224) << 6 |
 			((Example_uint32)ps->sz[1] & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((Example_uint32)ps->sz[0] & ~240) << 12 |
 			((Example_uint32)ps->sz[1] & ~192) << 6 |
 			((Example_uint32)ps->sz[2] & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((Example_uint32)ps->sz[0] & ~248) << 18 |
 			((Example_uint32)ps->sz[1] & ~192) << 12 |
 			((Example_uint32)ps->sz[2] & ~192) << 6 |

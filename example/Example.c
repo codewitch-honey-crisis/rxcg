@@ -517,9 +517,6 @@ PROGMEM
 	-1, 1, 6, 1, 42, 42, -1, 1, 12, 1, 
 	47, 47, 0, 0
 };
-// FILENAME
-// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
-// on TIMESTAMP
 static match_t Example_runner32(Example_int32* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
 	match_t result;
 	result.position = 0;
@@ -530,7 +527,7 @@ static match_t Example_runner32(Example_int32* dfa, unsigned long long* position
 	Example_int32 prlen;
 	Example_int32 pmin;
 	Example_int32 pmax;
-	Example_int32 i, j;
+	int i, j;
 	Example_int32 ch;
 	Example_int32 state = 0;
 	Example_int32 acc = -1;
@@ -596,9 +593,6 @@ start_dfa:
 	result.length = 0;
 	return result;
 }
-// FILENAME
-// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
-// on TIMESTAMP
 static match_t Example_runner16(Example_int16* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
 	match_t result;
 	result.position = 0;
@@ -609,7 +603,7 @@ static match_t Example_runner16(Example_int16* dfa, unsigned long long* position
 	Example_int16 prlen;
 	Example_int16 pmin;
 	Example_int16 pmax;
-	Example_int32 i, j;
+	int i, j;
 	Example_int32 ch;
 	Example_int16 state = 0;
 	Example_int16 acc = -1;
@@ -688,7 +682,7 @@ static match_t Example_runner8(Example_int8* dfa, Example_int8* blockEnd, unsign
 	Example_int8 prlen;
 	Example_int8 pmin;
 	Example_int8 pmax;
-	Example_int32 i, j;
+	int i, j;
 	Example_int32 ch;
 	Example_int8 state = 0;
 	Example_int8 acc = -1;
@@ -860,26 +854,26 @@ Example_int32 string_read_callback(unsigned long long* out_advance, void* state)
 		*out_advance = 0;
 		return -1;
 	}
-	Example_uint8 byte = (Example_uint8)*ps->sz;
-	if ((byte & 128) == 0) {
+	Example_uint8 data = (Example_uint8)*ps->sz;
+	if ((data & 128) == 0) {
 		cp = ((Example_uint32)*ps->sz & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((Example_uint32)ps->sz[0] & ~224) << 6 |
 			((Example_uint32)ps->sz[1] & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((Example_uint32)ps->sz[0] & ~240) << 12 |
 			((Example_uint32)ps->sz[1] & ~192) << 6 |
 			((Example_uint32)ps->sz[2] & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((Example_uint32)ps->sz[0] & ~248) << 18 |
 			((Example_uint32)ps->sz[1] & ~192) << 12 |
 			((Example_uint32)ps->sz[2] & ~192) << 6 |
@@ -898,26 +892,26 @@ Example_int32 file_read_callback(unsigned long long* out_advance, void* state) {
 		*out_advance = 0;
 		return -1;
 	}
-	Example_uint8 byte = (Example_uint8)i;
-	if ((byte & 128) == 0) {
+	Example_uint8 data = (Example_uint8)i;
+	if ((data & 128) == 0) {
 		cp = ((Example_uint32)i & ~128);
 		*out_advance = 1;
 	}
 
-	if ((byte & 224) == 192) {
+	if ((data & 224) == 192) {
 		cp = ((Example_uint32)i & ~224) << 6 |
 			((Example_uint32)fgetc(h) & ~192);
 		*out_advance = 2;
 	}
 
-	if ((byte & 240) == 224) {
+	if ((data & 240) == 224) {
 		cp = ((Example_uint32)i & ~240) << 12 |
 			((Example_uint32)fgetc(h) & ~192) << 6 |
 			((Example_uint32)fgetc(h) & ~192);
 		*out_advance = 3;
 	}
 
-	if ((byte & 248) == 240) {
+	if ((data & 248) == 240) {
 		cp = ((Example_uint32)i & ~248) << 18 |
 			((Example_uint32)fgetc(h) & ~192) << 12 |
 			((Example_uint32)fgetc(h) & ~192) << 6 |

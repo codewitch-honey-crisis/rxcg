@@ -12,14 +12,7 @@
 #endif
 #endif
 #endif
-#ifndef MATCH_int8
-	#define MATCH_int8 char
-	#define MATCH_uint8 unsigned char
-	#define MATCH_int16 short
-	#define MATCH_uint16 unsigned short
-	#define MATCH_int32 int
-	#define MATCH_uint32 unsigned int
-#endif
+INTDEFS
 // Represents the capture information
 typedef struct PREFIXmatch {
 	// the captured text, as unicode codepoints
@@ -30,7 +23,7 @@ typedef struct PREFIXmatch {
 	size_t length;
 } PREFIXmatch_t;
 // a callback to read the input
-typedef MATCH_int32(*PREFIXread_callback)(unsigned long long* out_advance,void* state);
+typedef INT32(*PREFIXread_callback)(unsigned long long* out_advance,void* state);
 #if 0
 #include <stdio.h>
 // a container for the string cursor state
@@ -41,9 +34,9 @@ typedef struct PREFIXstring_cb_state {
 extern "C" {
 #endif
 // an implementation of a callback over a UTF-8 string (char*)
-MATCH_int32 PREFIXstring_read_callback(unsigned long long* out_advance, void* state);
+INT32 PREFIXstring_read_callback(unsigned long long* out_advance, void* state);
 // an implementation of a callback over a UTF-8 file (FILE*)
-MATCH_int32 PREFIXfile_read_callback(unsigned long long* out_advance, void* state);
+INT32 PREFIXfile_read_callback(unsigned long long* out_advance, void* state);
 #ifdef __cplusplus
 }
 #endif

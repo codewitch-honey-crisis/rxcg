@@ -1,6 +1,6 @@
 // Example.h
 // generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
-// on 11/15/2023 12:05:44 AM
+// on 11/15/2023 10:11:11 AM
 #ifndef Example_H_HEADER
 #define Example_H_HEADER
 #include <stddef.h>
@@ -20,6 +20,7 @@
 	#define Example_int32 int
 	#define Example_uint32 unsigned int
 #endif
+
 // Represents the capture information
 typedef struct match {
 	// the captured text, as unicode codepoints

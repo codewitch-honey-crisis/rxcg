@@ -8,8 +8,8 @@
 	TYPE prlen;
 	TYPE pmin;
 	TYPE pmax;
-	MATCH_int32 i, j;
-	MATCH_int32 ch;
+	int i, j;
+	INT32 ch;
 	TYPE state = 0;
 	TYPE acc = -1;
 	int done;

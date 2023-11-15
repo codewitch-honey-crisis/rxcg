@@ -56,26 +56,19 @@ int main(int argc, char** argv) {
 		puts("Not found");
 		return 1;
 	}
-	// convert to ascii
-	int i;
-	for (i = 0; i < m.length; ++i) {
-		tmp[i] = (char)m.capture[i];
-	}
-	tmp[i] = 0;
-	cbs.sz = tmp;
+	strncpy(tmp, m.capture,sizeof(tmp)-1);
 	pos = 0;
+	cbs.sz = tmp;
 	m = match_unixtime_value(&pos, string_callback, &cbs);
-	for (i = 0; i < m.length; ++i) {
-		tmp[i] = (char)m.capture[i];
+	if (m.length == 0) {
+		puts("Value not found");
+		return 1;
 	}
-	tmp[i] = 0;
-	
+	strncpy(tmp, m.capture, sizeof(tmp)-1);
+
 	time_t tim = (time_t)atol(tmp);
 	
-	struct tm newtime;
-	localtime_s(&newtime, &tim);
-	asctime_s(tmp, sizeof(tmp), &newtime);
-	puts(tmp);
+	puts(asctime(localtime(&tim)));
 
 
 	return 0;

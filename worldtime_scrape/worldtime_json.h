@@ -1,6 +1,6 @@
 // worldtime_json.h
 // generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
-// on 11/14/2023 11:55:59 PM
+// on 11/15/2023 6:25:39 AM
 #ifndef worldtime_json_H_HEADER
 #define worldtime_json_H_HEADER
 #include <stddef.h>
@@ -51,14 +51,10 @@ worldtime_json_int32 file_read_callback(unsigned long long* out_advance, void* s
 #ifdef __cplusplus
 extern "C" {
 #endif
-// match the expression '"unixtime"\:[0-9]+'
+// match the expression '"unixtime"[ \t]*\:[ \t]*[0-9]+'
 match_t match_unixtime_all(unsigned long long* position,read_callback callback, void* callback_state);
 // match the expression '[0-9]+'
 match_t match_unixtime_value(unsigned long long* position,read_callback callback, void* callback_state);
-// match the expression '"raw_offset"\:\-?[0-9]+'
-match_t match_raw_offset_all(unsigned long long* position,read_callback callback, void* callback_state);
-// match the expression '\-?[0-9]+'
-match_t match_raw_offset_value(unsigned long long* position,read_callback callback, void* callback_state);
 #ifdef __cplusplus
 }
 #endif

@@ -11,8 +11,9 @@ PROGMEM
 	-1, 1, 36, 1, 116, 116, -1, 1, 42, 1, 
 	105, 105, -1, 1, 48, 1, 109, 109, -1, 1, 
 	54, 1, 101, 101, -1, 1, 60, 1, 34, 34, 
-	-1, 1, 66, 1, 58, 58, -1, 1, 72, 1, 
-	48, 57, 0, 1, 72, 1, 48, 57
+	-1, 2, 60, 2, 9, 9, 32, 32, 72, 1, 
+	58, 58, -1, 2, 72, 2, 9, 9, 32, 32, 
+	84, 1, 48, 57, 0, 1, 84, 1, 48, 57
 };
 static worldtime_json_int8 unixtime_value_dfa[]
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
@@ -22,34 +23,6 @@ PROGMEM
 	-1, 1, 6, 1, 48, 57, 1, 1, 6, 1, 
 	48, 57
 };
-static worldtime_json_int8 raw_offset_all_dfa[]
-#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
-PROGMEM
-#endif
- = {
-	-1, 1, 6, 1, 34, 34, -1, 1, 12, 1, 
-	114, 114, -1, 1, 18, 1, 97, 97, -1, 1, 
-	24, 1, 119, 119, -1, 1, 30, 1, 95, 95, 
-	-1, 1, 36, 1, 111, 111, -1, 1, 42, 1, 
-	102, 102, -1, 1, 48, 1, 102, 102, -1, 1, 
-	54, 1, 115, 115, -1, 1, 60, 1, 101, 101, 
-	-1, 1, 66, 1, 116, 116, -1, 1, 72, 1, 
-	34, 34, -1, 1, 78, 1, 58, 58, -1, 2, 
-	88, 1, 45, 45, 94, 1, 48, 57, -1, 1, 
-	94, 1, 48, 57, 2, 1, 94, 1, 48, 57
-};
-static worldtime_json_int8 raw_offset_value_dfa[]
-#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
-PROGMEM
-#endif
- = {
-	-1, 2, 10, 1, 45, 45, 16, 1, 48, 57, 
-	-1, 1, 16, 1, 48, 57, 3, 1, 16, 1, 
-	48, 57
-};
-// FILENAME
-// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
-// on TIMESTAMP
 static match_t worldtime_json_runner8(worldtime_json_int8* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
 	match_t result;
 	result.position = 0;
@@ -131,12 +104,6 @@ match_t match_unixtime_all(unsigned long long* position,read_callback callback, 
 }
 match_t match_unixtime_value(unsigned long long* position,read_callback callback, void* callback_state) {
 	return worldtime_json_runner8(unixtime_value_dfa, position, callback, callback_state);
-}
-match_t match_raw_offset_all(unsigned long long* position,read_callback callback, void* callback_state) {
-	return worldtime_json_runner8(raw_offset_all_dfa, position, callback, callback_state);
-}
-match_t match_raw_offset_value(unsigned long long* position,read_callback callback, void* callback_state) {
-	return worldtime_json_runner8(raw_offset_value_dfa, position, callback, callback_state);
 }
 #if 0
 worldtime_json_int32 string_read_callback(unsigned long long* out_advance, void* state) {

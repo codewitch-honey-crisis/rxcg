@@ -1,3 +1,4 @@
+// Example.c
 #include "Example.h"
 static Example_int32 JsonStringLiteral_dfa[]
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
@@ -516,14 +517,9 @@ PROGMEM
 	-1, 1, 6, 1, 42, 42, -1, 1, 12, 1, 
 	47, 47, 0, 0
 };
-static Example_int8 Bar_dfa[]
-#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
-PROGMEM
-#endif
- = {
-	-1, 1, 6, 1, 98, 98, -1, 1, 12, 1, 
-	97, 97, -1, 1, 18, 1, 114, 114, 11, 0
-};
+// FILENAME
+// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
+// on TIMESTAMP
 static Example_match_t Example_runner32(Example_int32* dfa, unsigned long long* position, Example_callback callback, void* callback_state) {
 	Example_match_t result;
 	result.position = 0;
@@ -600,6 +596,9 @@ start_dfa:
 	result.length = 0;
 	return result;
 }
+// FILENAME
+// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
+// on TIMESTAMP
 static Example_match_t Example_runner16(Example_int16* dfa, unsigned long long* position, Example_callback callback, void* callback_state) {
 	Example_match_t result;
 	result.position = 0;
@@ -676,6 +675,9 @@ start_dfa:
 	result.length = 0;
 	return result;
 }
+// FILENAME
+// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
+// on TIMESTAMP
 static Example_match_t Example_runner8(Example_int8* dfa, Example_int8* blockEnd, unsigned long long* position, Example_callback callback, void* callback_state) {
 	Example_match_t result;
 	result.position = 0;
@@ -849,9 +851,6 @@ Example_match_t match_CIdentifier(unsigned long long* position,Example_callback 
 }
 Example_match_t match_CommentBlock(unsigned long long* position,Example_callback callback, void* callback_state) {
 	return Example_runner8(CommentBlock_dfa, CommentBlock_end_dfa, position, callback, callback_state);
-}
-Example_match_t match_Bar(unsigned long long* position,Example_callback callback, void* callback_state) {
-	return Example_runner8(Bar_dfa, NULL, position, callback, callback_state);
 }
 #if 0
 Example_int32 Example_string_callback(unsigned long long* out_advance, void* state) {

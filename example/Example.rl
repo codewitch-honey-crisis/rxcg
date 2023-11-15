@@ -10,4 +10,3 @@ Whitespace<hidden>='[\t\r\n\v\f ]+'
 Identifier='[_[:IsLetter:]][_[:IsLetterOrDigit:]]*'
 CIdentifier='[A-Z_a-z][0-9A-Z_a-z]*'
 CommentBlock<blockEnd="*/">="/*"
-Bar="bar"

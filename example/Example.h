@@ -1,4 +1,6 @@
+// Example.h
 // generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
+// on 11/14/2023 9:49:19 PM
 #ifndef Example_H_HEADER
 #define Example_H_HEADER
 #include <stddef.h>
@@ -71,8 +73,6 @@ Example_match_t match_Identifier(unsigned long long* position,Example_callback c
 Example_match_t match_CIdentifier(unsigned long long* position,Example_callback callback, void* callback_state);
 // match the expression "/*" (block end: "*/")
 Example_match_t match_CommentBlock(unsigned long long* position,Example_callback callback, void* callback_state);
-// match the expression "bar"
-Example_match_t match_Bar(unsigned long long* position,Example_callback callback, void* callback_state);
 #ifdef __cplusplus
 }
 #endif

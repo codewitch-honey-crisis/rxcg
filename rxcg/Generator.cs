@@ -2,6 +2,7 @@
 
 using LC;
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -159,6 +160,8 @@ namespace rxcg
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match.h");
 			TextReader tr = new StreamReader(stm);
 			var s = tr.ReadToEnd();
+			s = s.Replace("TIMESTAMP", DateTime.Now.ToString());
+			s = s.Replace("FILENAME", name + ".h");
 			s = s.Replace("UTYPE", maxWidth == 4 ? "MATCH_uint32" : maxWidth == 2 ? "MATCH_uint16" : "MATCH_uint8");
 			s = s.Replace("TYPE2", maxWidth == 4 ? "dword" : maxWidth == 2 ? "word" : "byte");
 			s = s.Replace("TYPE", maxWidth == 4 ? "MATCH_int32" : maxWidth == 1 ? "MATCH_int8" : "MATCH_int16");
@@ -242,6 +245,7 @@ namespace rxcg
 					widths[i] = mw;
 				}
 			}
+			sourceOutput.WriteLine("// {0}.c", name);
 			sourceOutput.WriteLine("#include \"{0}.h\"", name);
 			for (int i = 0; i < rules.Count; ++i)
 			{

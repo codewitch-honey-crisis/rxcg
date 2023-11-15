@@ -1,4 +1,6 @@
-﻿// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
+﻿// FILENAME
+// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
+// on TIMESTAMP
 #ifndef MATCH_H_HEADER
 #define MATCH_H_HEADER
 #include <stddef.h>

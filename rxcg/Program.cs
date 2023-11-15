@@ -46,6 +46,7 @@ namespace rxcg
 			bool ifstale = false;
 			string outH = null;
 			string outC = null;
+			bool prefix = false;
 			try
 			{
 				if (0 == args.Length)
@@ -74,6 +75,10 @@ namespace rxcg
 							case "/ifstale":
 								ifstale = true;
 								break;
+							case "/prefix":
+								prefix = true;
+								break;
+
 							default:
 								throw new ArgumentException(string.Format("Unknown switch {0}", args[i]));
 						}
@@ -106,10 +111,9 @@ namespace rxcg
 							using (var sc = new StreamWriter(outC))
 							{
 								stderr.WriteLine("Generating " + outH + " and " + outC + ".");
-								Generator.Generate(path, size, sh, sc);
+								Generator.Generate(path, size,prefix, sh, sc);
 							}
 						}
-
 					}
 				}
 			}
@@ -184,7 +188,7 @@ namespace rxcg
 		}
 		static void _PrintUsage(TextWriter w)
 		{
-			w.WriteLine("Usage: {0} <input> [/size <capture_size>] [/ifstale]",Path.GetFileName(CodeBase));
+			w.WriteLine("Usage: {0} <input> [/size <capture_size>] [/ifstale] [/prefix]",Path.GetFileName(CodeBase));
 			if (!string.IsNullOrEmpty(Description))
 			{
 				w.WriteLine();
@@ -196,6 +200,8 @@ namespace rxcg
 			w.WriteLine("               buffer. Default is 256");
 			w.WriteLine("<ifstale>      Only generate if source");
 			w.WriteLine("               is newer than target");
+			w.WriteLine("<prefix>       Generate a prefix for");
+			w.WriteLine("               the match struct");
 			w.WriteLine();
 		}
 	}

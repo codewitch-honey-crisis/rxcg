@@ -520,8 +520,8 @@ PROGMEM
 // FILENAME
 // generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
 // on TIMESTAMP
-static Example_match_t Example_runner32(Example_int32* dfa, unsigned long long* position, Example_callback callback, void* callback_state) {
-	Example_match_t result;
+static match_t Example_runner32(Example_int32* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
+	match_t result;
 	result.position = 0;
 	result.length = 0;
 	unsigned long long adv = 0;
@@ -599,8 +599,8 @@ start_dfa:
 // FILENAME
 // generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
 // on TIMESTAMP
-static Example_match_t Example_runner16(Example_int16* dfa, unsigned long long* position, Example_callback callback, void* callback_state) {
-	Example_match_t result;
+static match_t Example_runner16(Example_int16* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
+	match_t result;
 	result.position = 0;
 	result.length = 0;
 	unsigned long long adv = 0;
@@ -678,8 +678,8 @@ start_dfa:
 // FILENAME
 // generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
 // on TIMESTAMP
-static Example_match_t Example_runner8(Example_int8* dfa, Example_int8* blockEnd, unsigned long long* position, Example_callback callback, void* callback_state) {
-	Example_match_t result;
+static match_t Example_runner8(Example_int8* dfa, Example_int8* blockEnd, unsigned long long* position, read_callback callback, void* callback_state) {
+	match_t result;
 	result.position = 0;
 	result.length = 0;
 	unsigned long long adv = 0;
@@ -819,42 +819,42 @@ start_block_end:
 	result.length = 0;
 	return result;
 }
-Example_match_t match_JsonStringLiteral(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_JsonStringLiteral(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner32(JsonStringLiteral_dfa, position, callback, callback_state);
 }
-Example_match_t match_VerbatimStringLiteral(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_VerbatimStringLiteral(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner32(VerbatimStringLiteral_dfa, position, callback, callback_state);
 }
-Example_match_t match_StringLiteral(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_StringLiteral(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner32(StringLiteral_dfa, position, callback, callback_state);
 }
-Example_match_t match_CharacterLiteral(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_CharacterLiteral(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner32(CharacterLiteral_dfa, position, callback, callback_state);
 }
-Example_match_t match_IntegerLiteral(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_IntegerLiteral(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner16(IntegerLiteral_dfa, position, callback, callback_state);
 }
-Example_match_t match_FloatLiteral(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_FloatLiteral(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner8(FloatLiteral_dfa, NULL, position, callback, callback_state);
 }
-Example_match_t match_Keyword(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_Keyword(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner16(Keyword_dfa, position, callback, callback_state);
 }
-Example_match_t match_Whitespace(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_Whitespace(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner8(Whitespace_dfa, NULL, position, callback, callback_state);
 }
-Example_match_t match_Identifier(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_Identifier(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner32(Identifier_dfa, position, callback, callback_state);
 }
-Example_match_t match_CIdentifier(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_CIdentifier(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner8(CIdentifier_dfa, NULL, position, callback, callback_state);
 }
-Example_match_t match_CommentBlock(unsigned long long* position,Example_callback callback, void* callback_state) {
+match_t match_CommentBlock(unsigned long long* position,read_callback callback, void* callback_state) {
 	return Example_runner8(CommentBlock_dfa, CommentBlock_end_dfa, position, callback, callback_state);
 }
 #if 0
-Example_int32 Example_string_callback(unsigned long long* out_advance, void* state) {
-	Example_string_cb_state_t* ps = (Example_string_cb_state_t*)state;
+Example_int32 string_read_callback(unsigned long long* out_advance, void* state) {
+	string_cb_state_t* ps = (string_cb_state_t*)state;
 	Example_int32 cp = 0;
 	if (!*ps->sz) {
 		*out_advance = 0;
@@ -890,7 +890,7 @@ Example_int32 Example_string_callback(unsigned long long* out_advance, void* sta
 
 	return cp;
 }
-Example_int32 Example_file_callback(unsigned long long* out_advance, void* state) {
+Example_int32 file_read_callback(unsigned long long* out_advance, void* state) {
 	FILE* h = (FILE*)state;
 	Example_int32 cp = 0;
 	int i = fgetc(h);

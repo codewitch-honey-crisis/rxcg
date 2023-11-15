@@ -1,91 +1,56 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "Example.h"
+// a container for the string cursor state
 typedef struct string_cb_state {
-    char* sz;
+	char* sz;
 } string_cb_state_t;
 
-int32_t string_callback(unsigned long long* out_advance, void* state) {
-    string_cb_state_t* ps = (string_cb_state_t*)state;
-    int32_t cp=0;
-    if (!*ps->sz) {
-        *out_advance = 0;
-        return -1;
-    }
-    uint8_t byte = (uint8_t)*ps->sz;
-    if ((byte & 128) == 0) {
-        cp = ((uint32_t) *ps->sz & ~128);
+Example_int32 string_read_callback(unsigned long long* out_advance, void* state) {
+	string_cb_state_t* ps = (string_cb_state_t*)state;
+	Example_int32 cp = 0;
+	if (!*ps->sz) {
+		*out_advance = 0;
+		return -1;
+	}
+	Example_uint8 byte = (Example_uint8)*ps->sz;
+	if ((byte & 128) == 0) {
+		cp = ((Example_uint32)*ps->sz & ~128);
 		*out_advance = 1;
 	}
 
 	if ((byte & 224) == 192) {
-        cp=((uint32_t) ps->sz[0] & ~224) << 6 |
-		((uint32_t) ps->sz[1] & ~192);
+		cp = ((Example_uint32)ps->sz[0] & ~224) << 6 |
+			((Example_uint32)ps->sz[1] & ~192);
 		*out_advance = 2;
 	}
 
 	if ((byte & 240) == 224) {
-		cp=((uint32_t) ps->sz[0] & ~240) << 12 |
-        ((uint32_t) ps->sz[1] & ~192) << 6 |
-        ((uint32_t) ps->sz[2] & ~192);
-        *out_advance = 3;
+		cp = ((Example_uint32)ps->sz[0] & ~240) << 12 |
+			((Example_uint32)ps->sz[1] & ~192) << 6 |
+			((Example_uint32)ps->sz[2] & ~192);
+		*out_advance = 3;
 	}
 
 	if ((byte & 248) == 240) {
-		cp=((uint32_t) ps->sz[0] & ~248) << 18 |
-				((uint32_t) ps->sz[1] & ~192) << 12 |
-				((uint32_t) ps->sz[2] & ~192) << 6 |
-				((uint32_t) ps->sz[3] & ~192);
-        *out_advance = 4;
+		cp = ((Example_uint32)ps->sz[0] & ~248) << 18 |
+			((Example_uint32)ps->sz[1] & ~192) << 12 |
+			((Example_uint32)ps->sz[2] & ~192) << 6 |
+			((Example_uint32)ps->sz[3] & ~192);
+		*out_advance = 4;
 	}
-    ps->sz+=*out_advance;
-	
-    return cp;
+	ps->sz += *out_advance;
+
+	return cp;
 }
-int32_t file_callback(unsigned long long* out_advance, void* state) {
-    FILE* h = (FILE*)state;
-    int32_t cp = 0;
-    int i = fgetc(h);
-    if (i==-1) {
-        *out_advance = 0;
-        return -1;
-    }
-    uint8_t byte = (uint8_t)i;
-    if ((byte & 128) == 0) {
-        cp = ((uint32_t) i & ~128);
-		*out_advance = 1;
-	}
-
-	if ((byte & 224) == 192) {
-        cp=((uint32_t) i & ~224) << 6 |
-		((uint32_t) fgetc(h) & ~192);
-		*out_advance = 2;
-	}
-
-	if ((byte & 240) == 224) {
-		cp=((uint32_t) i & ~240) << 12 |
-        ((uint32_t) fgetc(h) & ~192) << 6 |
-        ((uint32_t) fgetc(h) & ~192);
-        *out_advance = 3;
-	}
-
-	if ((byte & 248) == 240) {
-		cp=((uint32_t) i & ~248) << 18 |
-				((uint32_t) fgetc(h) & ~192) << 12 |
-				((uint32_t) fgetc(h) & ~192) << 6 |
-				((uint32_t) fgetc(h) & ~192);
-        *out_advance = 4;
-	}
-    return cp;
-}
-
 int main(int argc, char** argv) {
+#if 1
     char* test = "a1234 foobar /*5678 abc123 */ - while damn";
     unsigned long long pos = 0;
     string_cb_state_t st;
     st.sz = test;
     while (1) {
-        Example_match_t c = match_Keyword(&pos, string_callback, &st);
+        match_t c = match_Keyword(&pos, string_read_callback, &st);
         if (0 == c.length) {
             return 0;
         }
@@ -94,5 +59,6 @@ int main(int argc, char** argv) {
         }
         printf("\n");
     }
+#endif
     return 0;
 }

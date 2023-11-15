@@ -121,7 +121,7 @@ namespace rxcg
 			}
 			return width;
 		}
-		static void GenerateMatchC(string name, int width,string size, TextWriter writer)
+		static void GenerateMatchC(string name, int width,bool prefix,string size, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match.c");
 			TextReader tr = new StreamReader(stm);
@@ -132,9 +132,17 @@ namespace rxcg
 			s = s.Replace("TYPE", width == 4 ? "MATCH_int32" : width == 1 ? "MATCH_int8" : "MATCH_int16");
 			s = s.Replace("MAX_SIZE", size);
 			s = s.Replace("MATCH", name);
+			if(prefix)
+			{
+				s = s.Replace("PREFIX", name + "_");
+			} else
+			{
+				s = s.Replace("PREFIX", "");
+			}
+
 			writer.Write(s);
 		}
-		static void GenerateMatchBEC(string name, int width, string size, TextWriter writer)
+		static void GenerateMatchBEC(string name, int width, bool prefix,string size, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match_be.c");
 			TextReader tr = new StreamReader(stm);
@@ -145,17 +153,33 @@ namespace rxcg
 			s = s.Replace("TYPE", width == 4 ? "MATCH_int32" : width == 1 ? "MATCH_int8" : "MATCH_int16");
 			s = s.Replace("MAX_SIZE", size);
 			s = s.Replace("MATCH", name);
+			if (prefix)
+			{
+				s = s.Replace("PREFIX", name + "_");
+			}
+			else
+			{
+				s = s.Replace("PREFIX", "");
+			}
 			writer.Write(s);
 		}
-		static void GenerateMatchEpilogueC(string name, TextWriter writer)
+		static void GenerateMatchEpilogueC(string name, bool prefix, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match_epilogue.c");
 			TextReader tr = new StreamReader(stm);
 			var s = tr.ReadToEnd();
 			s = s.Replace("MATCH", name);
+			if (prefix)
+			{
+				s = s.Replace("PREFIX", name + "_");
+			}
+			else
+			{
+				s = s.Replace("PREFIX", "");
+			}
 			writer.Write(s);
 		}
-		static void GenerateMatchH(string name, int maxWidth, string size, TextWriter writer)
+		static void GenerateMatchH(string name, int maxWidth, bool prefix, string size, TextWriter writer)
 		{
 			var stm = Assembly.GetExecutingAssembly().GetManifestResourceStream("rxcg.match.h");
 			TextReader tr = new StreamReader(stm);
@@ -167,6 +191,13 @@ namespace rxcg
 			s = s.Replace("TYPE", maxWidth == 4 ? "MATCH_int32" : maxWidth == 1 ? "MATCH_int8" : "MATCH_int16");
 			s = s.Replace("MAX_SIZE", size);
 			s = s.Replace("MATCH", name);
+			if(prefix) {
+				s = s.Replace("PREFIX", name + "_");
+			}
+			else
+			{
+				s = s.Replace("PREFIX", "");
+			}
 
 			writer.Write(s);
 		}
@@ -197,7 +228,7 @@ namespace rxcg
 			writer.WriteLine("};");
 
 		}
-		public static void Generate(string inputFile,string size, TextWriter headerOutput,TextWriter sourceOutput)
+		public static void Generate(string inputFile,string size, bool prefix, TextWriter headerOutput,TextWriter sourceOutput)
 		{
 			var name = Path.GetFileNameWithoutExtension(inputFile);
 			IList<LexRule> rules;
@@ -284,11 +315,11 @@ namespace rxcg
 							}
 							if (hasBE)
 							{
-								GenerateMatchBEC(name, w, size, sourceOutput);
+								GenerateMatchBEC(name, w, prefix, size, sourceOutput);
 							}
 							else
 							{
-								GenerateMatchC(name, w, size, sourceOutput);
+								GenerateMatchC(name, w, prefix, size, sourceOutput);
 							}
 							gen1 = true;
 						}
@@ -308,11 +339,11 @@ namespace rxcg
 							}
 							if (hasBE)
 							{
-								GenerateMatchBEC(name, w, size, sourceOutput);
+								GenerateMatchBEC(name, w, prefix, size, sourceOutput);
 							}
 							else
 							{
-								GenerateMatchC(name, w, size, sourceOutput);
+								GenerateMatchC(name, w, prefix, size, sourceOutput);
 							}
 							gen2 = true;
 						}
@@ -332,22 +363,24 @@ namespace rxcg
 							}
 							if (hasBE)
 							{
-								GenerateMatchBEC(name, w, size, sourceOutput);
+								GenerateMatchBEC(name, w, prefix, size, sourceOutput);
 							}
 							else
 							{
-								GenerateMatchC(name, w, size, sourceOutput);
+								GenerateMatchC(name, w, prefix, size, sourceOutput);
 							}
 							gen4 = true;
 						}
 						break;
 				}
 			}
+			string pfx = prefix ? (name + "_") : "";
 			for (int i = 0; i < rules.Count; ++i)
 			{
 				var rule = rules[i];
 				var width = widths[rule.Id];
-				sourceOutput.Write("{0}_match_t match_{1}(unsigned long long* position,{0}_callback callback, void* callback_state) ", name, rule.Symbol);
+				sourceOutput.Write("{2}match_t match_{1}(unsigned long long* position,{2}read_callback callback, void* callback_state) ", name, rule.Symbol,pfx);
+				
 				sourceOutput.WriteLine("{");
 				if((width == 1 && hasBE1) || (width == 2 && hasBE2) || (width==4 && hasBE4))
 				{
@@ -358,8 +391,8 @@ namespace rxcg
 				}
 				sourceOutput.WriteLine("}");
 			}
-			GenerateMatchEpilogueC(name, sourceOutput);
-			GenerateMatchH(name, maxWidth, size, headerOutput);
+			GenerateMatchEpilogueC(name, prefix, sourceOutput);
+			GenerateMatchH(name, maxWidth, prefix, size, headerOutput);
 			headerOutput.WriteLine("#ifdef __cplusplus");
 			headerOutput.WriteLine("extern \"C\" {");
 			headerOutput.WriteLine("#endif");
@@ -385,7 +418,7 @@ namespace rxcg
 					
 				}
 				headerOutput.WriteLine();
-				headerOutput.WriteLine("{0}_match_t match_{1}(unsigned long long* position,{0}_callback callback, void* callback_state);", name,rule.Symbol);
+				headerOutput.WriteLine("{2}match_t match_{1}(unsigned long long* position,{2}read_callback callback, void* callback_state);", name, rule.Symbol,pfx);
 			}
 			headerOutput.WriteLine("#ifdef __cplusplus");
 			headerOutput.WriteLine("}");

@@ -242,6 +242,49 @@ namespace rxcg
 
 			writer.Write(s);
 		}
+		static void GenerateArrayElem(int[] table,int i, bool ischar, TextWriter writer)
+		{
+			if (i < table.Length - 1 && (i % 10) == 0)
+			{
+				writer.WriteLine();
+				writer.Write("\t");
+			}
+			if (ischar && ((table[i]>31 && table[i]<128) || table[i]=='\t')) {
+				writer.Write("\'");
+				switch(table[i])
+				{
+					case '\'':
+						writer.Write("\\\'");
+						break;
+					case '\"':
+						writer.Write("\\\"");
+						break;
+					case '\t':
+						writer.Write("\\t");
+						break;
+					case '\r':
+						writer.Write("\\r");
+						break;
+					case '\n':
+						writer.Write("\\n");
+						break;
+					case '\\':
+						writer.Write("\\\\");
+						break;
+					default:
+						writer.Write((char)table[i]);
+						break;
+				}
+				writer.Write("\'");
+			} else
+			{
+				writer.Write(table[i]);
+			}
+			if (i < table.Length - 1)
+			{
+				writer.Write(", ");
+			}
+		}
 		static void GenerateArray(string name, string arrayName, string type, int[] table, TextWriter writer)
 		{
 			writer.Write("static ");
@@ -252,19 +295,42 @@ namespace rxcg
 			writer.WriteLine("PROGMEM");
 			writer.WriteLine("#endif");
 			writer.Write(" = {");
-			for(int i = 0;i<table.Length;++i)
+			int tlen;
+			int prlen;
+			int pmin;
+			int pmax;
+			int i,j;
+			int state = 0;
+
+			while (state < table.Length)
 			{
-				if(i<table.Length-1 && (i % 10) == 0)
+				GenerateArrayElem(table, state, false, writer);
+				state++;
+				GenerateArrayElem(table, state, false, writer);
+				tlen = table[state++];
+				for (i = 0; i < tlen; ++i)
 				{
-					writer.WriteLine();
-					writer.Write("\t");
-				}
-				writer.Write(table[i]);
-				if(i<table.Length-1)
-				{
-					writer.Write(", ");
+					GenerateArrayElem(table, state, false, writer);
+					state++;
+					GenerateArrayElem(table, state, false, writer);
+					prlen = table[state++];
+					for (j = 0; j < prlen; ++j)
+					{
+						pmin = table[state++];
+						pmax = table[state++];
+						if (pmin < 128 && pmax < 128)
+						{
+							GenerateArrayElem(table, state-2, true, writer);
+							GenerateArrayElem(table, state-1, true, writer);
+						} else
+						{
+							GenerateArrayElem(table, state - 2, false, writer);
+							GenerateArrayElem(table, state - 1, false, writer);
+						}
+					}
 				}
 			}
+			
 			writer.WriteLine();
 			writer.WriteLine("};");
 

@@ -8,7 +8,6 @@ static char* json = "{\"abbreviation\":\"PST\",\"client_ip\":\"redacted\",\"date
 typedef struct string_cb_state {
 	char* sz;
 } string_cb_state_t;
-
 int32_t string_callback(unsigned long long* out_advance, void* state) {
 	string_cb_state_t* ps = (string_cb_state_t*)state;
 	int32_t cp = 0;
@@ -46,26 +45,47 @@ int32_t string_callback(unsigned long long* out_advance, void* state) {
 
 	return cp;
 }
-static char tmp[256];
+typedef struct capture_cb_state {
+	int32_t* p;
+	size_t pos;
+	size_t len;
+} capture_cb_state_t;
+int32_t capture_callback(unsigned long long* out_advance, void* state) {
+	capture_cb_state_t* ps = (capture_cb_state_t*)state;
+	int32_t cp = 0;
+	if (ps->pos == ps->len) {
+		return -1;
+	}
+	cp = *(ps->p + ps->pos);
+	++ps->pos;
+	return cp;
+}
+
+static char tmp[257];
 int main(int argc, char** argv) {
-	string_cb_state_t cbs;
-	cbs.sz = json;
+	string_cb_state_t scbs;
+	scbs.sz = json;
 	long long pos = 0;
-	match_t m = match_unixtime_all(&pos, string_callback, &cbs);
+	match_t m = match_unixtime_all(&pos, string_callback, &scbs);
 	if (m.length == 0) {
 		puts("Not found");
 		return 1;
 	}
-	strncpy(tmp, m.capture,sizeof(tmp)-1);
 	pos = 0;
-	cbs.sz = tmp;
-	m = match_unixtime_value(&pos, string_callback, &cbs);
+	capture_cb_state_t ccbs;
+	ccbs.len = m.length;
+	ccbs.p = m.capture;
+	ccbs.pos = 0;
+	m = match_value(&pos, capture_callback, &ccbs);
 	if (m.length == 0) {
 		puts("Value not found");
 		return 1;
 	}
-	strncpy(tmp, m.capture, sizeof(tmp)-1);
-
+	int i;
+	for (i = 0; i < m.length; ++i) {
+		tmp[i] = m.capture[i];
+	}
+	tmp[i] = 0;
 	time_t tim = (time_t)atol(tmp);
 	
 	puts(asctime(localtime(&tim)));

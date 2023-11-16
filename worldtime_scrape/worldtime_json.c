@@ -11,16 +11,41 @@ PROGMEM
 	-1, 1, 36, 1, 't', 't', -1, 1, 42, 1, 
 	'i', 'i', -1, 1, 48, 1, 'm', 'm', -1, 1, 
 	54, 1, 'e', 'e', -1, 1, 60, 1, '\"', '\"', 
-	-1, 2, 60, 2, '\t', '\t', ' ', ' ', 72, 1, 
+	-1, 2, 72, 2, '\t', '\t', ' ', ' ', 84, 1, 
 	':', ':', -1, 2, 72, 2, '\t', '\t', ' ', ' ', 
-	84, 1, '0', '9', 0, 1, 84, 1, '0', '9'
+	84, 1, ':', ':', -1, 2, 96, 2, '\t', '\t', 
+	' ', ' ', 108, 1, '0', '9', -1, 2, 96, 2, 
+	'\t', '\t', ' ', ' ', 108, 1, '0', '9', 0, 1, 
+	114, 1, '0', '9', 0, 1, 114, 1, '0', '9'
 };
-static int8_t unixtime_value_dfa[]
+static int16_t raw_offset_all_dfa[]
 #if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
 PROGMEM
 #endif
  = {
-	-1, 1, 6, 1, '0', '9', 1, 1, 6, 1, 
+	-1, 1, 6, 1, '\"', '\"', -1, 1, 12, 1, 
+	'r', 'r', -1, 1, 18, 1, 'a', 'a', -1, 1, 
+	24, 1, 'w', 'w', -1, 1, 30, 1, '_', '_', 
+	-1, 1, 36, 1, 'o', 'o', -1, 1, 42, 1, 
+	'f', 'f', -1, 1, 48, 1, 'f', 'f', -1, 1, 
+	54, 1, 's', 's', -1, 1, 60, 1, 'e', 'e', 
+	-1, 1, 66, 1, 't', 't', -1, 1, 72, 1, 
+	'\"', '\"', -1, 2, 84, 2, '\t', '\t', ' ', ' ', 
+	96, 1, ':', ':', -1, 2, 84, 2, '\t', '\t', 
+	' ', ' ', 96, 1, ':', ':', -1, 3, 112, 2, 
+	'\t', '\t', ' ', ' ', 128, 1, '-', '-', 134, 1, 
+	'0', '9', -1, 3, 112, 2, '\t', '\t', ' ', ' ', 
+	128, 1, '-', '-', 134, 1, '0', '9', -1, 1, 
+	134, 1, '0', '9', 1, 1, 140, 1, '0', '9', 
+	1, 1, 140, 1, '0', '9'
+};
+static int8_t value_dfa[]
+#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
+PROGMEM
+#endif
+ = {
+	-1, 2, 10, 1, '-', '-', 16, 1, '0', '9', 
+	-1, 1, 16, 1, '0', '9', 2, 1, 16, 1, 
 	'0', '9'
 };
 static match_t worldtime_json_runner8(int8_t* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
@@ -99,11 +124,90 @@ start_dfa:
 	result.length = 0;
 	return result;
 }
+static match_t worldtime_json_runner16(int16_t* dfa, unsigned long long* position, read_callback callback, void* callback_state) {
+	match_t result;
+	result.position = 0;
+	result.length = 0;
+	unsigned long long adv = 0;
+	int tlen;
+	int16_t tto;
+	int16_t prlen;
+	int16_t pmin;
+	int16_t pmax;
+	int i, j;
+	int32_t ch;
+	int16_t state = 0;
+	int16_t acc = -1;
+	int done;
+	unsigned long long cursor_pos = *position;
+	ch = callback(&adv, callback_state);
+	while (ch != -1) {
+		result.length = 0;
+		result.position = cursor_pos;
+		acc = -1;
+		done = 0;
+		while (!done) {
+start_dfa:
+			done = 1;
+#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
+			acc = (int16_t)pgm_read_word((uint16_t*)(dfa + (state++)));
+			tlen = (int16_t)pgm_read_word((uint16_t*)(dfa + (state++)));
+#else
+			acc = dfa[state++];
+			tlen = dfa[state++];
+#endif
+			for (i = 0; i < tlen; ++i) {
+#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
+				tto = (int16_t)pgm_read_word((uint16_t*)(dfa + (state++)));
+				prlen = (int16_t)pgm_read_word((uint16_t*)(dfa + (state++)));
+#else
+				tto = dfa[state++];
+				prlen = dfa[state++];
+#endif
+				for (j = 0; j < prlen; ++j) {
+#if defined(ARDUINO) && !defined(CORE_TEENSY) && !defined(ESP32)
+					pmin = (int16_t)pgm_read_word((uint16_t*)(dfa + (state++)));
+					pmax = (int16_t)pgm_read_word((uint16_t*)(dfa + (state++)));
+#else
+					pmin = dfa[state++];
+					pmax = dfa[state++];
+#endif
+					if (ch < pmin) {
+						break;
+					}
+					if (ch <= pmax) {
+						if (result.length < 256) {
+							result.capture[result.length++] = ch;
+						}
+						ch = callback(&adv, callback_state);
+						++cursor_pos;
+						state = tto;
+						done = 0;
+						goto start_dfa;
+					}
+				}
+			}
+			if (acc != -1) {
+				if (result.length > 0) {
+					return result;
+				}
+			}
+			ch = callback(&adv, callback_state);
+			++cursor_pos;
+			state = 0;
+		}
+	}
+	result.length = 0;
+	return result;
+}
 match_t match_unixtime_all(unsigned long long* position,read_callback callback, void* callback_state) {
 	return worldtime_json_runner8(unixtime_all_dfa, position, callback, callback_state);
 }
-match_t match_unixtime_value(unsigned long long* position,read_callback callback, void* callback_state) {
-	return worldtime_json_runner8(unixtime_value_dfa, position, callback, callback_state);
+match_t match_raw_offset_all(unsigned long long* position,read_callback callback, void* callback_state) {
+	return worldtime_json_runner16(raw_offset_all_dfa, position, callback, callback_state);
+}
+match_t match_value(unsigned long long* position,read_callback callback, void* callback_state) {
+	return worldtime_json_runner8(value_dfa, position, callback, callback_state);
 }
 #if 0
 int32_t string_read_callback(unsigned long long* out_advance, void* state) {

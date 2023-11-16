@@ -16,7 +16,7 @@ INTDEFS
 // Represents the capture information
 typedef struct PREFIXmatch {
 	// the captured text, as unicode codepoints
-	TYPE capture[MAX_SIZE];
+	INT32 capture[MAX_SIZE];
 	// the position in the text, as codepoints
 	unsigned long long position;
 	// the length of the capture buffer, in elements

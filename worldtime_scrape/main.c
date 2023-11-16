@@ -90,6 +90,25 @@ int main(int argc, char** argv) {
 	
 	puts(asctime(localtime(&tim)));
 
+	scbs.sz = json;
+	m = match_raw_offset_all(&pos, string_callback, &scbs);
+	if (m.length == 0) {
+		puts("Not found");
+		return 1;
+	}
+	ccbs.len = m.length;
+	ccbs.p = m.capture;
+	ccbs.pos = 0;
+	m = match_value(&pos, capture_callback, &ccbs);
+	if (m.length == 0) {
+		puts("Value not found");
+		return 1;
+	}
+	for (i = 0; i < m.length; ++i) {
+		tmp[i] = m.capture[i];
+	}
+	long tz = atol(tmp)/3600/10000;
+	printf("TZ: GMT %d\r\n", tz);
 
 	return 0;
 }

@@ -134,6 +134,15 @@ namespace rxcg
 			return result;
 			
 		}
+#if !DEBUG
+		// do our error handling here (release builds)
+		static int _ReportError(Exception ex, TextWriter stderr)
+		{
+			//_PrintUsage(stderr);
+			stderr.WriteLine("Error: {0}", ex.Message);
+			return -1;
+		}
+#endif
 		static bool _IsStale(string inputfile, string outputfile)
 		{
 			if (string.IsNullOrEmpty(outputfile) || string.IsNullOrEmpty(inputfile))
@@ -171,6 +180,7 @@ namespace rxcg
 			catch { }
 			return Path.GetFileNameWithoutExtension(Filename);
 		}
+
 		static Version _GetVersion()
 		{
 			return Assembly.GetExecutingAssembly().GetName().Version;

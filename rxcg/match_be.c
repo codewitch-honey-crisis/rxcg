@@ -1,8 +1,5 @@
-﻿// FILENAME
-// generated with rxcg https://github.com/codewitch-honey-crisis/rxcg
-// on TIMESTAMP
-static PREFIXmatch_t MATCH_runnerBIT_WIDTH(TYPE* dfa, TYPE* blockEnd, unsigned long long* position, PREFIXread_callback callback, void* callback_state) {
-	PREFIXmatch_t result;
+﻿static PREFIXmatch_t MATCH_runnerBIT_WIDTH(TYPE* dfa, TYPE* blockEnd, unsigned long long* position, PREFIXread_callback callback, void* callback_state) {
+	struct PREFIXmatch_t result;
 	result.position = 0;
 	result.length = 0;
 	unsigned long long adv = 0;

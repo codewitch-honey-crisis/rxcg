@@ -848,64 +848,64 @@ fa.Transitions.Add(new FFATransition(trns.Min,trns.Max,trns.To));f=f.ToLowerInva
 0),char.ConvertToUtf32(l,0),trns.To));}else{fa.Transitions.Add(new FFATransition(trns.Min,trns.Max,trns.To));}}}return result;}public static FFA Parse(IEnumerable<char>
 input,int accept=-1,int line=1,int column=1,long position=0,string fileOrUrl=null){var lc=LexContext.Create(input);lc.EnsureStarted();lc.SetLocation(line,
 column,position,fileOrUrl);var result=Parse(lc,accept);return result;}internal static FFA Parse(LexContext pc,int accept=-1){FFA result=null,next=null;
-int ich;pc.EnsureStarted();while(true){switch(pc.Current){case-1:result=result.ToMinimized();return result;case'.':var dot=FFA.Set(new KeyValuePair<int,
-int>[]{new KeyValuePair<int,int>(0,0x10ffff)},accept);if(null==result)result=dot;else{result=FFA.Concat(new FFA[]{result,dot},accept);}pc.Advance();result
-=_ParseModifier(result,pc,accept);break;case'\\':pc.Advance();pc.Expecting();var isNot=false;switch(pc.Current){case'P':isNot=true;goto case'p';case'p':
-pc.Advance();pc.Expecting('{');var uc=new StringBuilder();int uli=pc.Line;int uco=pc.Column;long upo=pc.Position;while(-1!=pc.Advance()&&'}'!=pc.Current)
-uc.Append((char)pc.Current);pc.Expecting('}');pc.Advance();int uci=0;switch(uc.ToString()){case"Pe":uci=21;break;case"Pc":uci=19;break;case"Cc":uci=14;
-break;case"Sc":uci=26;break;case"Pd":uci=19;break;case"Nd":uci=8;break;case"Me":uci=7;break;case"Pf":uci=23;break;case"Cf":uci=15;break;case"Pi":uci=22;
-break;case"Nl":uci=9;break;case"Zl":uci=12;break;case"Ll":uci=1;break;case"Sm":uci=25;break;case"Lm":uci=3;break;case"Sk":uci=27;break;case"Mn":uci=5;
-break;case"Ps":uci=20;break;case"Lo":uci=4;break;case"Cn":uci=29;break;case"No":uci=10;break;case"Po":uci=24;break;case"So":uci=28;break;case"Zp":uci=
-13;break;case"Co":uci=17;break;case"Zs":uci=11;break;case"Mc":uci=6;break;case"Cs":uci=16;break;case"Lt":uci=2;break;case"Lu":uci=0;break;}if(isNot){next
-=FFA.Set(_ToPairs(CharacterClasses.UnicodeCategories[uci]),accept);}else next=FFA.Set(_ToPairs(CharacterClasses.NotUnicodeCategories[uci]),accept);break;
-case'd':next=FFA.Set(_ToPairs(CharacterClasses.digit),accept);pc.Advance();break;case'D':next=FFA.Set(_NotRanges(CharacterClasses.digit),accept);pc.Advance();
-break;case's':next=FFA.Set(_ToPairs(CharacterClasses.space),accept);pc.Advance();break;case'S':next=FFA.Set(_NotRanges(CharacterClasses.space),accept);
-pc.Advance();break;case'w':next=FFA.Set(_ToPairs(CharacterClasses.word),accept);pc.Advance();break;case'W':next=FFA.Set(_NotRanges(CharacterClasses.word),
-accept);pc.Advance();break;default:if(-1!=(ich=_ParseEscapePart(pc))){next=FFA.Literal(new int[]{ich},accept);}else{pc.Expecting(); return null;}break;
-}next=_ParseModifier(next,pc,accept);if(null!=result){result=FFA.Concat(new FFA[]{result,next},accept);}else result=next;break;case')':result=result.ToMinimized();
-return result;case'(':pc.Advance();pc.Expecting();next=Parse(pc,accept);pc.Expecting(')');pc.Advance();next=_ParseModifier(next,pc,accept);if(null==result)
-result=next;else{result=FFA.Concat(new FFA[]{result,next},accept);}break;case'|':if(-1!=pc.Advance()){next=Parse(pc,accept);result=FFA.Or(new FFA[]{result,
-next},accept);}else{result=FFA.Optional(result,accept);}break;case'[':var seti=_ParseSet(pc);IEnumerable<KeyValuePair<int,int>>set;if(seti.Key)set=_NotRanges(seti.Value);
-else set=_ToPairs(seti.Value);next=FFA.Set(set,accept);next=_ParseModifier(next,pc,accept);if(null==result)result=next;else{result=FFA.Concat(new FFA[]
-{result,next},accept);}break;default:ich=pc.Current;if(char.IsHighSurrogate((char)ich)){if(-1==pc.Advance())throw new ExpectingException("Expecting low surrogate in Unicode stream",
-pc.Line,pc.Column,pc.Position,pc.FileOrUrl,"low-surrogate");ich=char.ConvertToUtf32((char)ich,(char)pc.Current);}next=FFA.Literal(new int[]{ich},accept);
-pc.Advance();next=_ParseModifier(next,pc,accept);if(null==result)result=next;else{result=FFA.Concat(new FFA[]{result,next},accept);}break;}}}static KeyValuePair<bool,
-int[]>_ParseSet(LexContext pc){var result=new List<int>();pc.EnsureStarted();pc.Expecting('[');pc.Advance();pc.Expecting();var isNot=false;if('^'==pc.Current)
-{isNot=true;pc.Advance();pc.Expecting();}var firstRead=true;int firstChar='\0';var readFirstChar=false;var wantRange=false;while(-1!=pc.Current&&(firstRead
-||']'!=pc.Current)){if(!wantRange){ if('['==pc.Current){pc.Advance();pc.Expecting();if(':'!=pc.Current){firstChar='[';readFirstChar=true;}else{pc.Advance();
-pc.Expecting();var ll=pc.CaptureBuffer.Length;if(!pc.TryReadUntil(':',false))throw new ExpectingException("Expecting character class",pc.Line,pc.Column,
-pc.Position,pc.FileOrUrl);pc.Expecting(':');pc.Advance();pc.Expecting(']');pc.Advance();var cls=pc.GetCapture(ll);int[]ranges;if(!CharacterClasses.Known.TryGetValue(cls,
-out ranges))throw new ExpectingException("Unknown character class \""+cls+"\" specified",pc.Line,pc.Column,pc.Position,pc.FileOrUrl);result.AddRange(ranges);
-readFirstChar=false;wantRange=false;firstRead=false;continue;}}if(!readFirstChar){if(char.IsHighSurrogate((char)pc.Current)){var chh=(char)pc.Current;
-pc.Advance();pc.Expecting();firstChar=char.ConvertToUtf32(chh,(char)pc.Current);pc.Advance();pc.Expecting();}else if('\\'==pc.Current){pc.Advance();firstChar
-=_ParseRangeEscapePart(pc);}else{firstChar=pc.Current;pc.Advance();pc.Expecting();}readFirstChar=true;}else{if('-'==pc.Current){pc.Advance();pc.Expecting();
-wantRange=true;}else{result.Add(firstChar);result.Add(firstChar);readFirstChar=false;}}firstRead=false;}else{if('\\'!=pc.Current){var ch=0;if(char.IsHighSurrogate((char)pc.Current))
-{var chh=(char)pc.Current;pc.Advance();pc.Expecting();ch=char.ConvertToUtf32(chh,(char)pc.Current);}else ch=(char)pc.Current;pc.Advance();pc.Expecting();
-result.Add(firstChar);result.Add(ch);}else{result.Add(firstChar);pc.Advance();result.Add(_ParseRangeEscapePart(pc));}wantRange=false;readFirstChar=false;
-}}if(readFirstChar){result.Add(firstChar);result.Add(firstChar);if(wantRange){result.Add('-');result.Add('-');}}pc.Expecting(']');pc.Advance();return new
- KeyValuePair<bool,int[]>(isNot,result.ToArray());} static FFA _ParseModifier(FFA expr,LexContext pc,int accept){var line=pc.Line;var column=pc.Column;
-var position=pc.Position;switch(pc.Current){case'*':expr=Repeat(expr,0,0,accept);pc.Advance();break;case'+':expr=Repeat(expr,1,0,accept);pc.Advance();
-break;case'?':expr=Optional(expr,accept);pc.Advance();break;case'{':pc.Advance();pc.TrySkipWhiteSpace();pc.Expecting('0','1','2','3','4','5','6','7','8',
-'9',',','}');var min=-1;var max=-1;if(','!=pc.Current&&'}'!=pc.Current){var l=pc.CaptureBuffer.Length;pc.TryReadDigits();min=int.Parse(pc.GetCapture(l));
-pc.TrySkipWhiteSpace();}if(','==pc.Current){pc.Advance();pc.TrySkipWhiteSpace();pc.Expecting('0','1','2','3','4','5','6','7','8','9','}');if('}'!=pc.Current)
-{var l=pc.CaptureBuffer.Length;pc.TryReadDigits();max=int.Parse(pc.GetCapture(l));pc.TrySkipWhiteSpace();}}else{max=min;}pc.Expecting('}');pc.Advance();
-expr=Repeat(expr,min,max,accept);break;}return expr;}static byte _FromHexChar(char hex){if(':'>hex&&'/'<hex)return(byte)(hex-'0');if('G'>hex&&'@'<hex)
-return(byte)(hex-'7'); if('g'>hex&&'`'<hex)return(byte)(hex-'W'); throw new ArgumentException("The value was not hex.","hex");}static bool _IsHexChar(char
- hex){if(':'>hex&&'/'<hex)return true;if('G'>hex&&'@'<hex)return true;if('g'>hex&&'`'<hex)return true;return false;} static int _ParseEscapePart(LexContext
- pc){if(-1==pc.Current)return-1;switch(pc.Current){case'f':pc.Advance();return'\f';case'v':pc.Advance();return'\v';case't':pc.Advance();return'\t';case
-'n':pc.Advance();return'\n';case'r':pc.Advance();return'\r';case'x':if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return'x';byte b=_FromHexChar((char)pc.Current);
+int ich;pc.EnsureStarted();while(true){switch(pc.Current){case-1: return result;case'.':var dot=FFA.Set(new KeyValuePair<int,int>[]{new KeyValuePair<int,
+int>(0,0x10ffff)},accept);if(null==result)result=dot;else{result=FFA.Concat(new FFA[]{result,dot},accept);}pc.Advance();result=_ParseModifier(result,pc,
+accept);break;case'\\':pc.Advance();pc.Expecting();var isNot=false;switch(pc.Current){case'P':isNot=true;goto case'p';case'p':pc.Advance();pc.Expecting('{');
+var uc=new StringBuilder();int uli=pc.Line;int uco=pc.Column;long upo=pc.Position;while(-1!=pc.Advance()&&'}'!=pc.Current)uc.Append((char)pc.Current);
+pc.Expecting('}');pc.Advance();int uci=0;switch(uc.ToString()){case"Pe":uci=21;break;case"Pc":uci=19;break;case"Cc":uci=14;break;case"Sc":uci=26;break;
+case"Pd":uci=19;break;case"Nd":uci=8;break;case"Me":uci=7;break;case"Pf":uci=23;break;case"Cf":uci=15;break;case"Pi":uci=22;break;case"Nl":uci=9;break;
+case"Zl":uci=12;break;case"Ll":uci=1;break;case"Sm":uci=25;break;case"Lm":uci=3;break;case"Sk":uci=27;break;case"Mn":uci=5;break;case"Ps":uci=20;break;
+case"Lo":uci=4;break;case"Cn":uci=29;break;case"No":uci=10;break;case"Po":uci=24;break;case"So":uci=28;break;case"Zp":uci=13;break;case"Co":uci=17;break;
+case"Zs":uci=11;break;case"Mc":uci=6;break;case"Cs":uci=16;break;case"Lt":uci=2;break;case"Lu":uci=0;break;}if(isNot){next=FFA.Set(_ToPairs(CharacterClasses.UnicodeCategories[uci]),
+accept);}else next=FFA.Set(_ToPairs(CharacterClasses.NotUnicodeCategories[uci]),accept);break;case'd':next=FFA.Set(_ToPairs(CharacterClasses.digit),accept);
+pc.Advance();break;case'D':next=FFA.Set(_NotRanges(CharacterClasses.digit),accept);pc.Advance();break;case's':next=FFA.Set(_ToPairs(CharacterClasses.space),
+accept);pc.Advance();break;case'S':next=FFA.Set(_NotRanges(CharacterClasses.space),accept);pc.Advance();break;case'w':next=FFA.Set(_ToPairs(CharacterClasses.word),
+accept);pc.Advance();break;case'W':next=FFA.Set(_NotRanges(CharacterClasses.word),accept);pc.Advance();break;default:if(-1!=(ich=_ParseEscapePart(pc)))
+{next=FFA.Literal(new int[]{ich},accept);}else{pc.Expecting(); return null;}break;}next=_ParseModifier(next,pc,accept);if(null!=result){result=FFA.Concat(new
+ FFA[]{result,next},accept);}else result=next;break;case')': return result;case'(':pc.Advance();pc.Expecting();next=Parse(pc,accept);pc.Expecting(')');
+pc.Advance();next=_ParseModifier(next,pc,accept);if(null==result)result=next;else{result=FFA.Concat(new FFA[]{result,next},accept);}break;case'|':if(-1
+!=pc.Advance()){next=Parse(pc,accept);result=FFA.Or(new FFA[]{result,next},accept);}else{result=FFA.Optional(result,accept);}break;case'[':var seti=_ParseSet(pc);
+IEnumerable<KeyValuePair<int,int>>set;if(seti.Key)set=_NotRanges(seti.Value);else set=_ToPairs(seti.Value);next=FFA.Set(set,accept);next=_ParseModifier(next,
+pc,accept);if(null==result)result=next;else{result=FFA.Concat(new FFA[]{result,next},accept);}break;default:ich=pc.Current;if(char.IsHighSurrogate((char)ich))
+{if(-1==pc.Advance())throw new ExpectingException("Expecting low surrogate in Unicode stream",pc.Line,pc.Column,pc.Position,pc.FileOrUrl,"low-surrogate");
+ich=char.ConvertToUtf32((char)ich,(char)pc.Current);}next=FFA.Literal(new int[]{ich},accept);pc.Advance();next=_ParseModifier(next,pc,accept);if(null==
+result)result=next;else{result=FFA.Concat(new FFA[]{result,next},accept);}break;}}}static KeyValuePair<bool,int[]>_ParseSet(LexContext pc){var result=
+new List<int>();pc.EnsureStarted();pc.Expecting('[');pc.Advance();pc.Expecting();var isNot=false;if('^'==pc.Current){isNot=true;pc.Advance();pc.Expecting();
+}var firstRead=true;int firstChar='\0';var readFirstChar=false;var wantRange=false;while(-1!=pc.Current&&(firstRead||']'!=pc.Current)){if(!wantRange){
+ if('['==pc.Current){pc.Advance();pc.Expecting();if(':'!=pc.Current){firstChar='[';readFirstChar=true;}else{pc.Advance();pc.Expecting();var ll=pc.CaptureBuffer.Length;
+if(!pc.TryReadUntil(':',false))throw new ExpectingException("Expecting character class",pc.Line,pc.Column,pc.Position,pc.FileOrUrl);pc.Expecting(':');
+pc.Advance();pc.Expecting(']');pc.Advance();var cls=pc.GetCapture(ll);int[]ranges;if(!CharacterClasses.Known.TryGetValue(cls,out ranges))throw new ExpectingException("Unknown character class \""
++cls+"\" specified",pc.Line,pc.Column,pc.Position,pc.FileOrUrl);result.AddRange(ranges);readFirstChar=false;wantRange=false;firstRead=false;continue;}
+}if(!readFirstChar){if(char.IsHighSurrogate((char)pc.Current)){var chh=(char)pc.Current;pc.Advance();pc.Expecting();firstChar=char.ConvertToUtf32(chh,
+(char)pc.Current);pc.Advance();pc.Expecting();}else if('\\'==pc.Current){pc.Advance();firstChar=_ParseRangeEscapePart(pc);}else{firstChar=pc.Current;pc.Advance();
+pc.Expecting();}readFirstChar=true;}else{if('-'==pc.Current){pc.Advance();pc.Expecting();wantRange=true;}else{result.Add(firstChar);result.Add(firstChar);
+readFirstChar=false;}}firstRead=false;}else{if('\\'!=pc.Current){var ch=0;if(char.IsHighSurrogate((char)pc.Current)){var chh=(char)pc.Current;pc.Advance();
+pc.Expecting();ch=char.ConvertToUtf32(chh,(char)pc.Current);}else ch=(char)pc.Current;pc.Advance();pc.Expecting();result.Add(firstChar);result.Add(ch);
+}else{result.Add(firstChar);pc.Advance();result.Add(_ParseRangeEscapePart(pc));}wantRange=false;readFirstChar=false;}}if(readFirstChar){result.Add(firstChar);
+result.Add(firstChar);if(wantRange){result.Add('-');result.Add('-');}}pc.Expecting(']');pc.Advance();return new KeyValuePair<bool,int[]>(isNot,result.ToArray());
+}static FFA _ParseModifier(FFA expr,LexContext pc,int accept){var line=pc.Line;var column=pc.Column;var position=pc.Position;switch(pc.Current){case'*':
+expr=Repeat(expr,0,0,accept);pc.Advance();break;case'+':expr=Repeat(expr,1,0,accept);pc.Advance();break;case'?':expr=Optional(expr,accept);pc.Advance();
+break;case'{':pc.Advance();pc.TrySkipWhiteSpace();pc.Expecting('0','1','2','3','4','5','6','7','8','9',',','}');var min=-1;var max=-1;if(','!=pc.Current
+&&'}'!=pc.Current){var l=pc.CaptureBuffer.Length;pc.TryReadDigits();min=int.Parse(pc.GetCapture(l));pc.TrySkipWhiteSpace();}if(','==pc.Current){pc.Advance();
+pc.TrySkipWhiteSpace();pc.Expecting('0','1','2','3','4','5','6','7','8','9','}');if('}'!=pc.Current){var l=pc.CaptureBuffer.Length;pc.TryReadDigits();
+max=int.Parse(pc.GetCapture(l));pc.TrySkipWhiteSpace();}}else{max=min;}pc.Expecting('}');pc.Advance();expr=Repeat(expr,min,max,accept);break;}return expr;
+}static byte _FromHexChar(char hex){if(':'>hex&&'/'<hex)return(byte)(hex-'0');if('G'>hex&&'@'<hex)return(byte)(hex-'7'); if('g'>hex&&'`'<hex)return(byte)(hex
+-'W'); throw new ArgumentException("The value was not hex.","hex");}static bool _IsHexChar(char hex){if(':'>hex&&'/'<hex)return true;if('G'>hex&&'@'<hex)
+return true;if('g'>hex&&'`'<hex)return true;return false;} static int _ParseEscapePart(LexContext pc){if(-1==pc.Current)return-1;switch(pc.Current){case
+'f':pc.Advance();return'\f';case'v':pc.Advance();return'\v';case't':pc.Advance();return'\t';case'n':pc.Advance();return'\n';case'r':pc.Advance();return
+'\r';case'x':if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return'x';byte b=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))
+return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return unchecked((char)b);b<<=4;b
+|=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);
+return unchecked((char)b);case'u':if(-1==pc.Advance())return'u';ushort u=_FromHexChar((char)pc.Current);u<<=4;if(-1==pc.Advance())return unchecked((char)u);
+u|=_FromHexChar((char)pc.Current);u<<=4;if(-1==pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);u<<=4;if(-1==pc.Advance())return
+ unchecked((char)u);u|=_FromHexChar((char)pc.Current);return unchecked((char)u);default:int i=pc.Current;pc.Advance();if(char.IsHighSurrogate((char)i))
+{i=char.ConvertToUtf32((char)i,(char)pc.Current);pc.Advance();}return(char)i;}}static int _ParseRangeEscapePart(LexContext pc){if(-1==pc.Current)return
+-1;switch(pc.Current){case'0':pc.Advance();return'\0';case'f':pc.Advance();return'\f';case'v':pc.Advance();return'\v';case't':pc.Advance();return'\t';
+case'n':pc.Advance();return'\n';case'r':pc.Advance();return'\r';case'x':if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return'x';byte b=_FromHexChar((char)pc.Current);
 if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))
 return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return unchecked((char)b);b<<=4;b
 |=_FromHexChar((char)pc.Current);return unchecked((char)b);case'u':if(-1==pc.Advance())return'u';ushort u=_FromHexChar((char)pc.Current);u<<=4;if(-1==
 pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);u<<=4;if(-1==pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);
-u<<=4;if(-1==pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);return unchecked((char)u);default:int i=pc.Current;pc.Advance();
-if(char.IsHighSurrogate((char)i)){i=char.ConvertToUtf32((char)i,(char)pc.Current);pc.Advance();}return(char)i;}}static int _ParseRangeEscapePart(LexContext
- pc){if(-1==pc.Current)return-1;switch(pc.Current){case'0':pc.Advance();return'\0';case'f':pc.Advance();return'\f';case'v':pc.Advance();return'\v';case
-'t':pc.Advance();return'\t';case'n':pc.Advance();return'\n';case'r':pc.Advance();return'\r';case'x':if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))
-return'x';byte b=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);
-if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);if(-1==pc.Advance()||!_IsHexChar((char)pc.Current))
-return unchecked((char)b);b<<=4;b|=_FromHexChar((char)pc.Current);return unchecked((char)b);case'u':if(-1==pc.Advance())return'u';ushort u=_FromHexChar((char)pc.Current);
-u<<=4;if(-1==pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);u<<=4;if(-1==pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);
 u<<=4;if(-1==pc.Advance())return unchecked((char)u);u|=_FromHexChar((char)pc.Current);return unchecked((char)u);default:int i=pc.Current;pc.Advance();
 if(char.IsHighSurrogate((char)i)){i=char.ConvertToUtf32((char)i,(char)pc.Current);pc.Advance();}return(char)i;}}static KeyValuePair<int,int>[]_ToPairs(int[]
 packedRanges){var result=new KeyValuePair<int,int>[packedRanges.Length/2];for(var i=0;i<result.Length;++i){var j=i*2;result[i]=new KeyValuePair<int,int>(packedRanges[j],
@@ -947,30 +947,30 @@ ak){pending2[c,j]=true;pending.Enqueue(new _IntPair(j,c));}else{pending2[c,k]=tr
 i=0;i<ic;++i){var t=Transitions[i];if(t.Min<=input&&input<=t.Max)return t.To;}return null;}static void _Init<T>(IList<T>list,int count){for(int i=0;i<
 count;++i){list.Add(default(T));}}private sealed class _IntPair{private readonly int n1;private readonly int n2;public _IntPair(int n1,int n2){this.n1
 =n1;this.n2=n2;}public int N1{get{return n1;}}public int N2{get{return n2;}}}private sealed class _FList{public int Count{get;set;}public _FListNode First
-{get;set;}public _FListNode Last{get;set;}public _FListNode Add(FFA q){return new _FListNode(q,this);}}public int[]ToDfaTable(){var working=new List<int>();
-var closure=new List<F.FFA>();FillClosure(closure);var stateIndices=new int[closure.Count];for(var i=0;i<closure.Count;++i){var cfa=closure[i];stateIndices[i]
-=working.Count; working.Add(cfa.IsAccepting?cfa.AcceptSymbol:-1);var itrgp=cfa.FillInputTransitionRangesGroupedByState(); working.Add(itrgp.Count);foreach
-(var itr in itrgp){ working.Add(closure.IndexOf(itr.Key)); working.Add(itr.Value.Length/2); working.AddRange(itr.Value);}}var result=working.ToArray();
-var state=0;while(state<result.Length){state++;var tlen=result[state++];for(var i=0;i<tlen;++i){ result[state]=stateIndices[result[state]];++state;var
- prlen=result[state++];state+=prlen*2;}}return result;}public static FFA FromDfaTable(int[]dfa){if(null==dfa)return null;if(dfa.Length==0)return new FFA();
-var si=0;var states=new Dictionary<int,FFA>();while(si<dfa.Length){var fa=new FFA();states.Add(si,fa);fa.AcceptSymbol=dfa[si++];if(fa.AcceptSymbol!=-1)
-fa.IsAccepting=true;var tlen=dfa[si++];for(var i=0;i<tlen;++i){++si; var prlen=dfa[si++];si+=prlen*2;}}si=0;var sid=0;while(si<dfa.Length){var fa=states[si];
-var acc=dfa[si++];var tlen=dfa[si++];for(var i=0;i<tlen;++i){var tto=dfa[si++];var to=states[tto];var prlen=dfa[si++];for(var j=0;j<prlen;++j){var pmin
-=dfa[si++];var pmax=dfa[si++];fa.Transitions.Add(new FFATransition(pmin,pmax,to));}}++sid;}return states[0];}private sealed class _FListNode{public _FListNode(FFA
- q,_FList sl){State=q;StateList=sl;if(sl.Count++==0){sl.First=sl.Last=this;}else{sl.Last.Next=this;Prev=sl.Last;sl.Last=this;}}public _FListNode Next{
-get;private set;}private _FListNode Prev{get;set;}public _FList StateList{get;private set;}public FFA State{get;private set;}public void Remove(){StateList.Count--;
-if(StateList.First==this){StateList.First=Next;}else{Prev.Next=Next;}if(StateList.Last==this){StateList.Last=Prev;}else{Next.Prev=Prev;}}}static FFA _Determinize(FFA
- fa){var p=new HashSet<int>();var closure=new List<FFA>();fa.FillClosure(closure);for(int ic=closure.Count,i=0;i<ic;++i){var ffa=closure[i];p.Add(0);foreach
-(var t in ffa.Transitions){p.Add(t.Min);if(t.Max<0x10ffff){p.Add((t.Max+1));}}}var points=new int[p.Count];p.CopyTo(points,0);Array.Sort(points);var sets
-=new Dictionary<KeySet<FFA>,KeySet<FFA>>();var working=new Queue<KeySet<FFA>>();var dfaMap=new Dictionary<KeySet<FFA>,FFA>();var initial=new KeySet<FFA>();
-initial.Add(fa);sets.Add(initial,initial);working.Enqueue(initial);var result=new FFA();foreach(var afa in initial){if(afa.IsAccepting){result.IsAccepting
-=true;result.AcceptSymbol=afa.AcceptSymbol;break;}}dfaMap.Add(initial,result);while(working.Count>0){var s=working.Dequeue();FFA dfa;dfaMap.TryGetValue(s,
-out dfa);foreach(FFA q in s){if(q.IsAccepting){dfa.IsAccepting=true;dfa.AcceptSymbol=q.AcceptSymbol;break;}}for(var i=0;i<points.Length;i++){var pnt=points[i];
-var set=new KeySet<FFA>();foreach(FFA c in s){foreach(var trns in c.Transitions){if(trns.Min<=pnt&&pnt<=trns.Max){set.Add(trns.To);}}}if(!sets.ContainsKey(set))
-{sets.Add(set,set);working.Enqueue(set);dfaMap.Add(set,new FFA());}FFA dst;dfaMap.TryGetValue(set,out dst);int first=pnt;int last;if(i+1<points.Length)
-last=(points[i+1]-1);else last=0x10ffff;dfa.Transitions.Add(new FFATransition(first,last,dst));}} foreach(var ffa in result.FillClosure()){var itrns=new
- List<FFATransition>(ffa.Transitions);foreach(var trns in itrns){var acc=trns.To.FillAcceptingStates();if(0==acc.Count){ffa.Transitions.Remove(trns);}
-}}return result;}}}namespace F{partial class FFA{/// <summary>
+{get;set;}public _FListNode Last{get;set;}public _FListNode Add(FFA q){return new _FListNode(q,this);}}public int[]ToDfaTable(){FFA fa=this;if(!IsDeterministic)
+{fa=this.ToMinimized();}var working=new List<int>();var closure=new List<F.FFA>();fa.FillClosure(closure);var stateIndices=new int[closure.Count];for(var
+ i=0;i<closure.Count;++i){var cfa=closure[i];stateIndices[i]=working.Count; working.Add(cfa.IsAccepting?cfa.AcceptSymbol:-1);var itrgp=cfa.FillInputTransitionRangesGroupedByState();
+ working.Add(itrgp.Count);foreach(var itr in itrgp){ working.Add(closure.IndexOf(itr.Key)); working.Add(itr.Value.Length/2); working.AddRange(itr.Value);
+}}var result=working.ToArray();var state=0;while(state<result.Length){state++;var tlen=result[state++];for(var i=0;i<tlen;++i){ result[state]=stateIndices[result[state]];
+++state;var prlen=result[state++];state+=prlen*2;}}return result;}public static FFA FromDfaTable(int[]dfa){if(null==dfa)return null;if(dfa.Length==0)return
+ new FFA();var si=0;var states=new Dictionary<int,FFA>();while(si<dfa.Length){var fa=new FFA();states.Add(si,fa);fa.AcceptSymbol=dfa[si++];if(fa.AcceptSymbol
+!=-1)fa.IsAccepting=true;var tlen=dfa[si++];for(var i=0;i<tlen;++i){++si; var prlen=dfa[si++];si+=prlen*2;}}si=0;var sid=0;while(si<dfa.Length){var fa
+=states[si];var acc=dfa[si++];var tlen=dfa[si++];for(var i=0;i<tlen;++i){var tto=dfa[si++];var to=states[tto];var prlen=dfa[si++];for(var j=0;j<prlen;++j)
+{var pmin=dfa[si++];var pmax=dfa[si++];fa.Transitions.Add(new FFATransition(pmin,pmax,to));}}++sid;}return states[0];}private sealed class _FListNode{
+public _FListNode(FFA q,_FList sl){State=q;StateList=sl;if(sl.Count++==0){sl.First=sl.Last=this;}else{sl.Last.Next=this;Prev=sl.Last;sl.Last=this;}}public
+ _FListNode Next{get;private set;}private _FListNode Prev{get;set;}public _FList StateList{get;private set;}public FFA State{get;private set;}public void
+ Remove(){StateList.Count--;if(StateList.First==this){StateList.First=Next;}else{Prev.Next=Next;}if(StateList.Last==this){StateList.Last=Prev;}else{Next.Prev
+=Prev;}}}static FFA _Determinize(FFA fa){var p=new HashSet<int>();var closure=new List<FFA>();fa.FillClosure(closure);for(int ic=closure.Count,i=0;i<ic;
+++i){var ffa=closure[i];p.Add(0);foreach(var t in ffa.Transitions){p.Add(t.Min);if(t.Max<0x10ffff){p.Add((t.Max+1));}}}var points=new int[p.Count];p.CopyTo(points,
+0);Array.Sort(points);var sets=new Dictionary<KeySet<FFA>,KeySet<FFA>>();var working=new Queue<KeySet<FFA>>();var dfaMap=new Dictionary<KeySet<FFA>,FFA>();
+var initial=new KeySet<FFA>();initial.Add(fa);sets.Add(initial,initial);working.Enqueue(initial);var result=new FFA();foreach(var afa in initial){if(afa.IsAccepting)
+{result.IsAccepting=true;result.AcceptSymbol=afa.AcceptSymbol;break;}}dfaMap.Add(initial,result);while(working.Count>0){var s=working.Dequeue();FFA dfa;
+dfaMap.TryGetValue(s,out dfa);foreach(FFA q in s){if(q.IsAccepting){dfa.IsAccepting=true;dfa.AcceptSymbol=q.AcceptSymbol;break;}}for(var i=0;i<points.Length;
+i++){var pnt=points[i];var set=new KeySet<FFA>();foreach(FFA c in s){foreach(var trns in c.Transitions){if(trns.Min<=pnt&&pnt<=trns.Max){set.Add(trns.To);
+}}}if(!sets.ContainsKey(set)){sets.Add(set,set);working.Enqueue(set);dfaMap.Add(set,new FFA());}FFA dst;dfaMap.TryGetValue(set,out dst);int first=pnt;
+int last;if(i+1<points.Length)last=(points[i+1]-1);else last=0x10ffff;dfa.Transitions.Add(new FFATransition(first,last,dst));}} foreach(var ffa in result.FillClosure())
+{var itrns=new List<FFATransition>(ffa.Transitions);foreach(var trns in itrns){var acc=trns.To.FillAcceptingStates();if(0==acc.Count){ffa.Transitions.Remove(trns);
+}}}return result;}}}namespace F{partial class FFA{/// <summary>
 /// Represents optional rendering parameters for a dot graph.
 /// </summary>
 public sealed class DotGraphOptions{/// <summary>

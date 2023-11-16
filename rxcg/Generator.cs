@@ -33,7 +33,7 @@ namespace rxcg
 				if (ic)
 					fa = FFA.CaseInsensitive(fa, rule.Id);
 			}
-			return fa.ToDfa();
+			return fa;
 		}
 		static FFA[] BuildMatchers(IList<LexRule> rules, string inputFile, bool ignoreCase)
 		{
@@ -363,7 +363,7 @@ namespace rxcg
 			}
 			return null;
 		}
-		public static void Generate(string inputFile,string size, bool stdint, bool prefix, TextWriter headerOutput,TextWriter sourceOutput)
+		public static void Generate(string inputFile,string size, bool stdint, bool prefix, bool render_nfas,bool render_dfas,TextWriter headerOutput,TextWriter sourceOutput)
 		{
 			var name = Path.GetFileNameWithoutExtension(inputFile);
 			IList<LexRule> rules;
@@ -386,6 +386,18 @@ namespace rxcg
 			var hasBE2 = false;
 			var gen4 = false;
 			var hasBE4 = false;
+			FFA.DotGraphOptions dotOpts = new FFA.DotGraphOptions();
+			dotOpts.HideAcceptSymbolIds = true;
+			if (render_nfas)
+			{
+				for(var i = 0;i<rules.Count;++i)
+				{
+					var rule = rules[i];
+					var fn = name + "_" + rule.Symbol + "_nfa.jpg";
+					
+					matchers[rule.Id].RenderToFile(fn,dotOpts);
+				}
+			}
 			for (var i = 0; i < matchers.Length; ++i)
 			{
 				var m = matchers[i];
@@ -409,6 +421,15 @@ namespace rxcg
 						mw = bw;
 					}
 					widths[i] = mw;
+				}
+			}
+			if (render_dfas)
+			{
+				for (var i = 0; i < rules.Count; ++i)
+				{
+					var rule = rules[i];
+					var fn = name + "_" + rule.Symbol + "_dfa.jpg";
+					FFA.FromDfaTable(dfas[rule.Id]).RenderToFile(fn, dotOpts);
 				}
 			}
 			sourceOutput.WriteLine("// {0}.c", name);

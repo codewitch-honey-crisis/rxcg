@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4D0E407C-6BE4-4135-B47D-088F86B4F570}</ProjectGuid>
+    <ProjectGuid>{2A8E4869-FE68-4A30-BE9F-65CBB72B70B3}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>rxcg</RootNamespace>
-    <AssemblyName>rxcg</AssemblyName>
+    <RootNamespace>CharClsTableGen</RootNamespace>
+    <AssemblyName>CharClsTableGen</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -34,42 +34,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FastFA.brick.cs" />
-    <Compile Include="Generator.cs" />
-    <Compile Include="LexContext.brick.cs" />
-    <Compile Include="LexRule.cs" />
+    <Compile Include="CodeDomUtility.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnicodeUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Example.rl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="match_be.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="match.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="match_epilogue.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="match.c" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)"</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)csbrick.exe" "$(SolutionDir)LexContext\LexContext.csproj" /output "$(ProjectDir)LexContext.brick.cs"
-"$(SolutionDir)csbrick.exe" "$(SolutionDir)FastFA\FastFA.csproj" /output "$(ProjectDir)FastFA.brick.cs"
-</PreBuildEvent>
   </PropertyGroup>
 </Project>

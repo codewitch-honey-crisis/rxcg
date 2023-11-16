@@ -48,6 +48,8 @@ namespace rxcg
 			string outC = null;
 			bool stdint = false;
 			bool prefix = false;
+			bool nfas = false;
+			bool dfas = false;
 			try
 			{
 				if (0 == args.Length)
@@ -82,6 +84,12 @@ namespace rxcg
 							case "/prefix":
 								prefix = true;
 								break;
+							case "/nfas":
+								nfas = true;
+								break;
+							case "/dfas":
+								dfas = true;
+								break;
 							default:
 								throw new ArgumentException(string.Format("Unknown switch {0}", args[i]));
 						}
@@ -114,7 +122,7 @@ namespace rxcg
 							using (var sc = new StreamWriter(outC))
 							{
 								stderr.WriteLine("Generating " + outH + " and " + outC + ".");
-								Generator.Generate(path, size,stdint, prefix, sh, sc);
+								Generator.Generate(path, size,stdint, prefix,nfas,dfas, sh, sc);
 							}
 						}
 					}

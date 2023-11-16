@@ -209,7 +209,8 @@ namespace rxcg
 		}
 		static void _PrintUsage(TextWriter w)
 		{
-			w.WriteLine("Usage: {0} <input> [/size <capture_size>] [/ifstale] [/stdint] [/prefix]", Path.GetFileName(CodeBase));
+			w.WriteLine("Usage: {0} <input> [/size <capture_size>] [/ifstale]", Path.GetFileName(CodeBase));
+			w.WriteLine("    [/stdint] [/prefix] [/nfas] [/dfas]");
 			if (!string.IsNullOrEmpty(Description))
 			{
 				w.WriteLine();
@@ -224,6 +225,9 @@ namespace rxcg
 			w.WriteLine("<prefix>       Generate a prefix for");
 			w.WriteLine("               the match struct");
 			w.WriteLine("<stdint>       Use <stdint.h>");
+			w.WriteLine("<nfas>         Generate NFA graphs*");
+			w.WriteLine("<dfas>         Generate DFA graphs*");
+			w.WriteLine("    *Requires GraphViz in PATH");
 			w.WriteLine();
 		}
 	}

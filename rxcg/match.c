@@ -47,6 +47,7 @@ start_dfa:
 					pmax = dfa[state++];
 #endif
 					if (ch < pmin) {
+						state += ((prlen - (j + 1)) * 2);
 						break;
 					}
 					if (ch <= pmax) {
